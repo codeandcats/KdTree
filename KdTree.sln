@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KdTreeLib", "KdTreeLib\KdTreeLib.csproj", "{68C8066D-7844-41C2-993D-3160798164D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KdTreeTestsLib", "KdTreeTestsLib\KdTreeTestsLib.csproj", "{4FCBB1BD-C02B-4804-8BC9-84C6C3F146F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68C8066D-7844-41C2-993D-3160798164D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68C8066D-7844-41C2-993D-3160798164D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68C8066D-7844-41C2-993D-3160798164D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68C8066D-7844-41C2-993D-3160798164D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FCBB1BD-C02B-4804-8BC9-84C6C3F146F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FCBB1BD-C02B-4804-8BC9-84C6C3F146F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FCBB1BD-C02B-4804-8BC9-84C6C3F146F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FCBB1BD-C02B-4804-8BC9-84C6C3F146F9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
