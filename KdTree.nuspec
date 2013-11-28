@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>KdTree</id>
+        <version>1.0.2</version>
+        <title>Kd-Tree</title>
+        <authors>codeandcats@gmail.com</authors>
+        <owners>codeandcats@gmail.com</owners>
+        <licenseUrl>https://raw.github.com/codeandcats/KdTree/master/LICENSE</licenseUrl>
+        <iconUrl>http://codeandcats.com/wp-content/uploads/2013/11/kdtree.png</iconUrl>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>Generic multi-dimensional binary search tree.</description>
+        <summary>Generic multi-dimensional binary search tree.</summary>
+        <copyright>Copyright codeandcats@gmail.com 2013</copyright>
+        <language>en-AU</language>
+        <tags>kdtree kd-tree binary search tree bst spatial</tags>
+    </metadata>
+    <files>
+        <file src="KdTreeLib\bin\Debug\KdTreeLib.dll" target="lib\net45\KdTreeLib.dll" />
+    </files>
+</package>
