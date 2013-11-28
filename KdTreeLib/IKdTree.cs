@@ -18,6 +18,8 @@ namespace KdTree
 
 		TKey[] FindValue(TValue value);
 
+		KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius, int count);
+
 		void RemoveAt(TKey[] point);
 
 		void Clear();
