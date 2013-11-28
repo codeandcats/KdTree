@@ -37,6 +37,10 @@ x64/
 *.vssscc
 .builds
 
+# Ignore output files
+*.dll
+*.exe
+
 # Visual C++ cache files
 ipch/
 *.aps
@@ -80,6 +84,9 @@ publish
 
 # NuGet Packages Directory
 packages
+
+# NuGet Packages
+*.nupkg
 
 # Windows Azure Build Output
 csx
