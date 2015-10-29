@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using KdTree.Math;
 
 namespace KdTree
 {
+    [Serializable]
 	public class KdTree<TKey, TValue> : IKdTree<TKey, TValue>
 	{
-		public KdTree(int dimensions)
-		{
-			this.dimensions = dimensions;
-			this.typeMath = TypeMath<TKey>.GetMath();
-			Count = 0;
-		}
-
 		public KdTree(int dimensions, ITypeMath<TKey> typeMath)
 		{
 			this.dimensions = dimensions;
@@ -176,7 +172,7 @@ namespace KdTree
 
 			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey>(count, typeMath);
 
-			var rect = HyperRect<TKey>.Infinite(dimensions);
+			var rect = HyperRect<TKey>.Infinite(dimensions, typeMath);
 
 			AddNearestNeighbours(root, point, rect, 0, nearestNeighbours, typeMath.MaxValue);
 
@@ -276,7 +272,7 @@ namespace KdTree
 			// OR if there's a region in the further rect that's closer to the target than our
 			// current furtherest nearest neighbour
 			TKey[] closestPointInFurtherRect = furtherRect.GetClosestPoint(target, typeMath);
-			distanceSquaredToTarget = DistanceSquaredBetweenPoints(closestPointInFurtherRect, target);
+			distanceSquaredToTarget = typeMath.DistanceSquaredBetweenPoints(closestPointInFurtherRect, target);
 
 			if (typeMath.Compare(distanceSquaredToTarget, maxSearchRadiusSquared) <= 0)
 			{
@@ -304,26 +300,10 @@ namespace KdTree
 			}
 
 			// Try to add the current node to our nearest neighbours list
-			distanceSquaredToTarget = DistanceSquaredBetweenPoints(node.Point, target);
+			distanceSquaredToTarget = typeMath.DistanceSquaredBetweenPoints(node.Point, target);
 
 			if (typeMath.Compare(distanceSquaredToTarget, maxSearchRadiusSquared) <= 0)
 				nearestNeighbours.Add(node, distanceSquaredToTarget);
-		}
-
-		private TKey DistanceSquaredBetweenPoints(TKey[] a, TKey[] b)
-		{
-			TKey distance = typeMath.Zero;
-
-			// Return the absolute distance bewteen 2 hyper points
-			for (var dimension = 0; dimension < dimensions; dimension++)
-			{
-				TKey distOnThisAxis = typeMath.Subtract(a[dimension], b[dimension]);
-				TKey distOnThisAxisSquared = typeMath.Multiply(distOnThisAxis, distOnThisAxis);
-
-				distance = typeMath.Add(distance, distOnThisAxisSquared);
-			}
-
-			return distance;
 		}
 
 		public KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius, int count)
@@ -553,5 +533,25 @@ namespace KdTree
 			if (root != null)
 				RemoveChildNodes(root);
 		}
+
+        public void SaveToFile(string filename)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = File.Create(filename))
+            {
+                formatter.Serialize(stream, this);
+                stream.Flush();
+            }
+        }
+
+        public static KdTree<TKey, TValue> LoadFromFile(string filename)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = File.Open(filename, FileMode.Open))
+            {
+                return (KdTree<TKey, TValue>)formatter.Deserialize(stream);
+            }
+
+        }
 	}
 }

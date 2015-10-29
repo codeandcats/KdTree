@@ -28,12 +28,12 @@ namespace KdTree
 
 		T Multiply(T a, T b);
 
-		//T Divide(T a, T b);
-
 		T Zero { get; }
 
 		T NegativeInfinity { get; }
 
 		T PositiveInfinity { get; }
+
+        T DistanceSquaredBetweenPoints(T[] a, T[] b);
 	}
 }

@@ -7,30 +7,9 @@ using System.Threading.Tasks;
 namespace KdTree.Math
 {
 	// Algebraic!
+    [Serializable]
 	public abstract class TypeMath<T> : ITypeMath<T>
 	{
-		private static Dictionary<Type, object> registeredMath = new Dictionary<Type, object>();
-
-		public static void Register<DataType>(ITypeMath<DataType> math)
-		{
-			registeredMath.Add(typeof(DataType), math);
-		}
-
-		public static ITypeMath<T> GetMath()
-		{
-			Type type = typeof(T);
-			object math;
-
-			if (registeredMath.TryGetValue(type, out math))
-			{
-				return (ITypeMath<T>)math;
-			}
-			else
-			{
-				throw new Exception("No ITypeMath registered for type \"" + type.Name + "\"");
-			}
-		}
-
 		#region ITypeMath<T> members
 
 		public abstract int Compare(T a, T b);
@@ -82,6 +61,8 @@ namespace KdTree.Math
 		public abstract T Subtract(T a, T b);
 
 		public abstract T Multiply(T a, T b);
+
+        public abstract T DistanceSquaredBetweenPoints(T[] a, T[] b);
 
 		#endregion
 	}

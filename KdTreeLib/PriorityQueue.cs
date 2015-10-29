@@ -12,7 +12,7 @@ namespace KdTree
 {
 	public class PriorityQueue<TItem, TPriority> : IPriorityQueue<TItem, TPriority>
 	{
-		public PriorityQueue(int capacity, ITypeMath<TPriority> priorityMath = null)
+		public PriorityQueue(int capacity, ITypeMath<TPriority> priorityMath)
 		{
 			if (capacity <= 0)
 				throw new ArgumentException("Capacity must be greater than zero");
@@ -20,10 +20,7 @@ namespace KdTree
 			this.capacity = capacity;
 			queue = new ItemPriority<TItem, TPriority>[capacity];
 
-			if (priorityMath != null)
-				this.priorityMath = priorityMath;
-			else
-				this.priorityMath = TypeMath<TPriority>.GetMath();
+            this.priorityMath = priorityMath;
 		}
 
 		private ITypeMath<TPriority> priorityMath;

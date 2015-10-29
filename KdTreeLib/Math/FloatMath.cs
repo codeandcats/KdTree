@@ -6,14 +6,9 @@ using System.Threading.Tasks;
 
 namespace KdTree.Math
 {
+    [Serializable]
 	public class FloatMath : TypeMath<float>
 	{
-		static FloatMath()
-		{
-			// Register this class as the ITypeMath class responsible for float types
-			TypeMath<float>.Register(new FloatMath());
-		}
-
 		public override int Compare(float a, float b)
 		{
 			return a.CompareTo(b);
@@ -57,5 +52,22 @@ namespace KdTree.Math
 		{
 			return a * b;
 		}
+
+        public override float DistanceSquaredBetweenPoints(float[] a, float[] b)
+        {
+            float distance = Zero;
+            int dimensions = a.Length;
+
+            // Return the absolute distance bewteen 2 hyper points
+            for (var dimension = 0; dimension < dimensions; dimension++)
+            {
+                float distOnThisAxis = Subtract(a[dimension], b[dimension]);
+                float distOnThisAxisSquared = Multiply(distOnThisAxis, distOnThisAxis);
+
+                distance = Add(distance, distOnThisAxisSquared);
+            }
+
+            return distance;
+        }
 	}
 }
