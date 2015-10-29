@@ -35,11 +35,8 @@ namespace KdTree
 			}
 		}
 
-		public static HyperRect<T> Infinite(int dimensions, ITypeMath<T> math = null)
+		public static HyperRect<T> Infinite(int dimensions, ITypeMath<T> math)
 		{
-			if (math == null)
-				math = TypeMath<T>.GetMath();
-
 			var rect = new HyperRect<T>();
 
 			rect.MinPoint = new T[dimensions];
