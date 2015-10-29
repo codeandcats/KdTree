@@ -20,7 +20,7 @@ namespace KdTree
 			this.capacity = capacity;
 			queue = new ItemPriority<TItem, TPriority>[capacity];
 
-            this.priorityMath = priorityMath;
+			this.priorityMath = priorityMath;
 		}
 
 		private ITypeMath<TPriority> priorityMath;

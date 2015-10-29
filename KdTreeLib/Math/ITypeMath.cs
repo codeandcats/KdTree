@@ -34,6 +34,6 @@ namespace KdTree
 
 		T PositiveInfinity { get; }
 
-        T DistanceSquaredBetweenPoints(T[] a, T[] b);
+		T DistanceSquaredBetweenPoints(T[] a, T[] b);
 	}
 }

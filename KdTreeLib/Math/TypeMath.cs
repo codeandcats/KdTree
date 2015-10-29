@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace KdTree.Math
 {
 	// Algebraic!
-    [Serializable]
+	[Serializable]
 	public abstract class TypeMath<T> : ITypeMath<T>
 	{
 		#region ITypeMath<T> members
@@ -62,7 +62,7 @@ namespace KdTree.Math
 
 		public abstract T Multiply(T a, T b);
 
-        public abstract T DistanceSquaredBetweenPoints(T[] a, T[] b);
+		public abstract T DistanceSquaredBetweenPoints(T[] a, T[] b);
 
 		#endregion
 	}

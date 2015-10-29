@@ -9,7 +9,7 @@ using KdTree.Math;
 
 namespace KdTree
 {
-    [Serializable]
+	[Serializable]
 	public class KdTree<TKey, TValue> : IKdTree<TKey, TValue>
 	{
 		public KdTree(int dimensions, ITypeMath<TKey> typeMath)
@@ -534,24 +534,24 @@ namespace KdTree
 				RemoveChildNodes(root);
 		}
 
-        public void SaveToFile(string filename)
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (FileStream stream = File.Create(filename))
-            {
-                formatter.Serialize(stream, this);
-                stream.Flush();
-            }
-        }
+		public void SaveToFile(string filename)
+		{
+			BinaryFormatter formatter = new BinaryFormatter();
+			using (FileStream stream = File.Create(filename))
+			{
+				formatter.Serialize(stream, this);
+				stream.Flush();
+			}
+		}
 
-        public static KdTree<TKey, TValue> LoadFromFile(string filename)
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (FileStream stream = File.Open(filename, FileMode.Open))
-            {
-                return (KdTree<TKey, TValue>)formatter.Deserialize(stream);
-            }
+		public static KdTree<TKey, TValue> LoadFromFile(string filename)
+		{
+			BinaryFormatter formatter = new BinaryFormatter();
+			using (FileStream stream = File.Open(filename, FileMode.Open))
+			{
+				return (KdTree<TKey, TValue>)formatter.Deserialize(stream);
+			}
 
-        }
+		}
 	}
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KdTree
 {
-    [Serializable]
+	[Serializable]
 	public class KdTreeNode<TKey, TValue>
 	{
 		public KdTreeNode()
