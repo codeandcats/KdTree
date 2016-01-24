@@ -42,6 +42,8 @@
     <Compile Include="HyperRect.cs" />
     <Compile Include="IPriorityQueue.cs" />
     <Compile Include="Math\FloatMath.cs" />
+    <Compile Include="Math\GeoMath.cs" />
+    <Compile Include="Math\GeoUtils.cs" />
     <Compile Include="Math\ITypeMath.cs" />
     <Compile Include="IKdTree.cs" />
     <Compile Include="KdTree.cs" />
