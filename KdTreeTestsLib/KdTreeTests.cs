@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using KdTree;
 using KdTree.Math;
 
 struct City
@@ -266,5 +265,23 @@ namespace KdTree.Tests
 				}
 			}
 		}
-	}
+
+        [TestMethod]
+        [TestCategory("KdTree")]
+        public void TestEnumerable()
+        {
+            AddTestNodes();
+
+            foreach (var node in tree)
+            {
+                var testNode = testNodes.FirstOrDefault(n => n.Point == node.Point && n.Value == node.Value);
+
+                Assert.IsNotNull(testNode);
+
+                testNodes.Remove(testNode);
+            }
+
+            Assert.AreEqual(0, testNodes.Count);
+        }
+    }
 }

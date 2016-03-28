@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KdTree
 {
-	public interface IKdTree<TKey, TValue>
+	public interface IKdTree<TKey, TValue> : IEnumerable<KdTreeNode<TKey, TValue>>
 	{
 		bool Add(TKey[] point, TValue value);
 

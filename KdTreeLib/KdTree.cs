@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -553,5 +554,66 @@ namespace KdTree
 			}
 
 		}
-	}
+
+        public IEnumerator<KdTreeNode<TKey, TValue>> GetEnumerator()
+        {
+            var left = new Stack<KdTreeNode<TKey, TValue>>();
+            var right = new Stack<KdTreeNode<TKey, TValue>>();
+
+            Action<KdTreeNode<TKey, TValue>> addLeft = node =>
+            {
+                if (node.LeftChild != null)
+                {
+                    left.Push(node.LeftChild);
+                }
+            };
+
+            Action<KdTreeNode<TKey, TValue>> addRight = node =>
+            {
+                if (node.RightChild != null)
+                {
+                    right.Push(node.RightChild);
+                }
+            };
+
+            if (root != null)
+            {
+                yield return root;
+
+                addLeft(root);
+                addRight(root);
+
+                while (true)
+                {
+                    if (left.Any())
+                    {
+                        var item = left.Pop();
+
+                        addLeft(item);
+                        addRight(item);
+
+                        yield return item;
+                    }
+                    else if (right.Any())
+                    {
+                        var item = right.Pop();
+
+                        addLeft(item);
+                        addRight(item);
+
+                        yield return item;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
 }
