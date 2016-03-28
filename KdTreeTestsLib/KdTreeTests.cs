@@ -66,6 +66,66 @@ namespace KdTree.Tests
 
 		[TestMethod]
 		[TestCategory("KdTree")]
+		public void TestAddDuplicateInSkipMode()
+		{
+			tree = new KdTree<float, string>(2, new FloatMath());
+
+			Assert.AreEqual(AddDuplicateBehavior.Skip, tree.AddDuplicateBehavior);
+
+			AddTestNodes();
+
+			var count = tree.Count;
+
+			var added = tree.Add(testNodes[0].Point, "Some other value");
+
+			Assert.AreEqual(false, added);
+			Assert.AreEqual(count, tree.Count);
+		}
+
+		[TestMethod]
+		[TestCategory("KdTree")]
+		public void TestAddDuplicateInErrorMode()
+		{
+			tree = new KdTree<float, string>(2, new FloatMath(), AddDuplicateBehavior.Error);
+
+			AddTestNodes();
+
+			var count = tree.Count;
+			Exception error = null;
+
+			try
+			{
+				tree.Add(testNodes[0].Point, "Some other value");
+			}
+			catch (Exception e)
+			{
+				error = e;
+			}
+
+			Assert.AreEqual(count, tree.Count);
+			Assert.IsNotNull(error);
+			Assert.IsInstanceOfType(error, typeof(DuplicateNodeError));
+		}
+
+		[TestMethod]
+		[TestCategory("KdTree")]
+		public void TestAddDuplicateInUpdateMode()
+		{
+			tree = new KdTree<float, string>(2, new FloatMath(), AddDuplicateBehavior.Update);
+
+			AddTestNodes();
+
+			var newValue = "I love chicken, I love liver, Meow Mix Meow Mix please deliver";
+
+			tree.Add(testNodes[0].Point, newValue);
+
+			var actualValue = tree.FindValueAt(testNodes[0].Point);
+
+			Assert.AreEqual(newValue, actualValue);
+		}
+
+		[TestMethod]
+		[TestCategory("KdTree")]
 		public void TestTryFindValueAt()
 		{
 			AddTestNodes();

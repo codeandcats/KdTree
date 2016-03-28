@@ -5,11 +5,24 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
-using KdTree.Math;
 
 namespace KdTree
 {
+	public enum AddDuplicateBehavior
+	{
+		Skip,
+		Error,
+		Update
+	}
+
+	public class DuplicateNodeError : Exception
+	{
+		public DuplicateNodeError()
+			: base("Cannot Add Node With Duplicate Coordinates")
+		{
+		}
+	}
+
 	[Serializable]
 	public class KdTree<TKey, TValue> : IKdTree<TKey, TValue>
 	{
@@ -20,11 +33,19 @@ namespace KdTree
 			Count = 0;
 		}
 
+		public KdTree(int dimensions, ITypeMath<TKey> typeMath, AddDuplicateBehavior addDuplicateBehavior)
+			: this(dimensions, typeMath)
+		{
+			AddDuplicateBehavior = addDuplicateBehavior;
+		}
+
 		private int dimensions;
 
 		private ITypeMath<TKey> typeMath = null;
 
 		private KdTreeNode<TKey, TValue> root = null;
+
+		public AddDuplicateBehavior AddDuplicateBehavior { get; private set; }
 
 		public bool Add(TKey[] point, TValue value)
 		{
@@ -46,7 +67,24 @@ namespace KdTree
 
 					// Does the node we're adding have the same hyperpoint as this node?
 					if (typeMath.AreEqual(point, parent.Point))
-						return false;
+					{
+						switch (AddDuplicateBehavior)
+						{
+							case AddDuplicateBehavior.Skip:
+								return false;
+								
+							case AddDuplicateBehavior.Error:
+								throw new DuplicateNodeError();
+
+							case AddDuplicateBehavior.Update:
+								parent.Value = value;
+								break;
+
+							default:
+								// Should never happen
+								throw new Exception("Unexpected AddDuplicateBehavior");
+						}
+					}
 
 					// Which side does this node sit under in relation to it's parent at this level?
 					int compare = typeMath.Compare(point[dimension], parent.Point[dimension]);
