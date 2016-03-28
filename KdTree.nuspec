@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>KdTree</id>
-        <version>1.0.2</version>
+        <version>1.1.0</version>
         <title>Kd-Tree</title>
         <authors>codeandcats@gmail.com</authors>
         <owners>codeandcats@gmail.com</owners>
         <licenseUrl>https://raw.github.com/codeandcats/KdTree/master/LICENSE</licenseUrl>
-        <iconUrl>http://codeandcats.com/wp-content/uploads/2013/11/kdtree.png</iconUrl>
+        <iconUrl>https://raw.githubusercontent.com/codeandcats/KdTree/master/Images/kdtree.png</iconUrl>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
         <description>Generic multi-dimensional binary search tree.</description>
         <summary>Generic multi-dimensional binary search tree.</summary>
