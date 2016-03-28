@@ -16,6 +16,6 @@
         <tags>kdtree kd-tree binary search tree bst spatial</tags>
     </metadata>
     <files>
-        <file src="KdTreeLib\bin\Debug\KdTreeLib.dll" target="lib\net45\KdTreeLib.dll" />
+        <file src="KdTreeLib\bin\Release\KdTreeLib.dll" target="lib\net45\KdTreeLib.dll" />
     </files>
 </package>
