@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="HyperRect.cs" />
     <Compile Include="IPriorityQueue.cs" />
+    <Compile Include="Math\DoubleMath.cs" />
     <Compile Include="Math\FloatMath.cs" />
     <Compile Include="Math\GeoMath.cs" />
     <Compile Include="Math\GeoUtils.cs" />
