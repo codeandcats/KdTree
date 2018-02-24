@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace KdTree
 {
-	public interface IKdTree<TKey, TValue> : IEnumerable<KdTreeNode<TKey, TValue>>
+    public interface IKdTree<TKey, TValue> : IEnumerable<KdTreeNode<TKey, TValue>>
 	{
 		bool Add(TKey[] point, TValue value);
 

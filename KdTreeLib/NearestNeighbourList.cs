@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace KdTree
 {
-	public interface INearestNeighbourList<TItem, TDistance>
+    public interface INearestNeighbourList<TItem, TDistance>
 	{
 		bool Add(TItem item, TDistance distance);
 		TItem GetFurtherest();

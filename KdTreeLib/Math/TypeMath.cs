@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KdTree.Math
 {
-	// Algebraic!
-	[Serializable]
+    // Algebraic!
+    [Serializable]
 	public abstract class TypeMath<T> : ITypeMath<T>
 	{
 		#region ITypeMath<T> members

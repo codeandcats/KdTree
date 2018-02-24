@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using KdTree.Math;
-
-namespace KdTree
+﻿namespace KdTree
 {
-	public struct HyperRect<T>
+    public struct HyperRect<T>
 	{
 		private T[] minPoint;
 		public T[] MinPoint

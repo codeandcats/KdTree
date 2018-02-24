@@ -8,7 +8,7 @@ using System.Text;
 
 namespace KdTree
 {
-	public enum AddDuplicateBehavior
+    public enum AddDuplicateBehavior
 	{
 		Skip,
 		Error,

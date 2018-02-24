@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KdTree.Math
 {
-	[Serializable]
+    [Serializable]
 	public class FloatMath : TypeMath<float>
 	{
 		public override int Compare(float a, float b)

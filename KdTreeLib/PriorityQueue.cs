@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using KdTree.Math;
 
 struct ItemPriority<TItem, TPriority>
 {
@@ -10,7 +8,7 @@ struct ItemPriority<TItem, TPriority>
 
 namespace KdTree
 {
-	public class PriorityQueue<TItem, TPriority> : IPriorityQueue<TItem, TPriority>
+    public class PriorityQueue<TItem, TPriority> : IPriorityQueue<TItem, TPriority>
 	{
 		public PriorityQueue(int capacity, ITypeMath<TPriority> priorityMath)
 		{

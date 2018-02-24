@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KdTree.Math
+﻿namespace KdTree.Math
 {
-	// Via http://www.geodatasource.com/developers/c-sharp
-	// This code is licensed under LGPLv3.
-	public class GeoUtils
+    // Via http://www.geodatasource.com/developers/c-sharp
+    // This code is licensed under LGPLv3.
+    public class GeoUtils
 	{
 		public static double Distance(double lat1, double lon1, double lat2, double lon2, char unit)
 		{
