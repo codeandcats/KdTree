@@ -396,12 +396,11 @@ namespace KdTree
 
 		public TValue FindValueAt(TKey[] point)
 		{
-			TValue value;
-			if (TryFindValueAt(point, out value))
-				return value;
-			else
-				return default(TValue);
-		}
+            if (TryFindValueAt(point, out TValue value))
+                return value;
+            else
+                return default(TValue);
+        }
 
 		public bool TryFindValue(TValue value, out TKey[] point)
 		{
@@ -443,12 +442,11 @@ namespace KdTree
 
 		public TKey[] FindValue(TValue value)
 		{
-			TKey[] point;
-			if (TryFindValue(value, out point))
-				return point;
-			else
-				return null;
-		}
+            if (TryFindValue(value, out TKey[] point))
+                return point;
+            else
+                return null;
+        }
 
 		private void AddNodeToStringBuilder(KdTreeNode<TKey, TValue> node, StringBuilder sb, int depth)
 		{
@@ -598,21 +596,21 @@ namespace KdTree
             var left = new Stack<KdTreeNode<TKey, TValue>>();
             var right = new Stack<KdTreeNode<TKey, TValue>>();
 
-            Action<KdTreeNode<TKey, TValue>> addLeft = node =>
+            void addLeft(KdTreeNode<TKey, TValue> node)
             {
                 if (node.LeftChild != null)
                 {
                     left.Push(node.LeftChild);
                 }
-            };
+            }
 
-            Action<KdTreeNode<TKey, TValue>> addRight = node =>
+            void addRight(KdTreeNode<TKey, TValue> node)
             {
                 if (node.RightChild != null)
                 {
                     right.Push(node.RightChild);
                 }
-            };
+            }
 
             if (root != null)
             {
