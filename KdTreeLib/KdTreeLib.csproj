@@ -4,7 +4,7 @@
     <TargetFrameworks>net45;net451;net452;net46;net461;net462;net47;net471;netstandard2.0;netcoreapp2.0</TargetFrameworks>
     <Authors>codeandcats@gmail.com</Authors>
     <Company>codeandcats@gmail.com</Company>
-    <PackageId>KdTree.Net</PackageId>
+    <PackageId>KdTree</PackageId>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <Product>KdTree</Product>
     <Copyright>Copyright codeandcats@gmail.com 2013</Copyright>
