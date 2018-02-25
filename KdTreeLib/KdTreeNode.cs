@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace KdTree
 {
-	[Serializable]
+    [Serializable]
 	public class KdTreeNode<TKey, TValue>
 	{
 		public KdTreeNode()

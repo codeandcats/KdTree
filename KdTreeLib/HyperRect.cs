@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using KdTree.Math;
-
-namespace KdTree
+﻿namespace KdTree
 {
-	public struct HyperRect<T>
+    public struct HyperRect<T>
 	{
 		private T[] minPoint;
 		public T[] MinPoint
@@ -37,12 +32,13 @@ namespace KdTree
 
 		public static HyperRect<T> Infinite(int dimensions, ITypeMath<T> math)
 		{
-			var rect = new HyperRect<T>();
+            var rect = new HyperRect<T>
+            {
+                MinPoint = new T[dimensions],
+                MaxPoint = new T[dimensions]
+            };
 
-			rect.MinPoint = new T[dimensions];
-			rect.MaxPoint = new T[dimensions];
-
-			for (var dimension = 0; dimension < dimensions; dimension++)
+            for (var dimension = 0; dimension < dimensions; dimension++)
 			{
 				rect.MinPoint[dimension] = math.NegativeInfinity;
 				rect.MaxPoint[dimension] = math.PositiveInfinity;
@@ -75,10 +71,12 @@ namespace KdTree
 
 		public HyperRect<T> Clone()
 		{
-			var rect = new HyperRect<T>();
-			rect.MinPoint = MinPoint;
-			rect.MaxPoint = MaxPoint;
-			return rect;
+            var rect = new HyperRect<T>
+            {
+                MinPoint = MinPoint,
+                MaxPoint = MaxPoint
+            };
+            return rect;
 		}
 	}
 }

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KdTree
+﻿namespace KdTree
 {
-	public interface ITypeMath<T>
+    public interface ITypeMath<T>
 	{
 		int Compare(T a, T b);
 

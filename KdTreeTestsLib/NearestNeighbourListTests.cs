@@ -1,9 +1,7 @@
-﻿using System;
+﻿using KdTree.Math;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using KdTree;
-using KdTree.Math;
 
 struct Planet
 {
@@ -13,7 +11,7 @@ struct Planet
 
 namespace KdTree.Tests
 {
-	[TestClass]
+    [TestClass]
 	public class NearestNeighbourListTests
 	{
 		private NearestNeighbourList<Planet, float> nearestNeighbours;

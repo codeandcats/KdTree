@@ -1,9 +1,7 @@
-﻿using System;
+﻿using KdTree.Math;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
-using KdTree;
-using KdTree.Math;
 
 struct Person
 {
@@ -13,7 +11,7 @@ struct Person
 
 namespace KdTree.Tests
 {
-	[TestClass]
+    [TestClass]
 	public class PriorityQueueTests
 	{
 		private PriorityQueue<string, float> queue;

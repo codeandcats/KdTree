@@ -1,8 +1,8 @@
-﻿using System;
+﻿using KdTree.Math;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using KdTree.Math;
 
 struct City
 {
@@ -14,7 +14,7 @@ struct City
 
 namespace KdTree.Tests
 {
-	[TestClass]
+    [TestClass]
 	public class KdTreeTests
 	{
 		private KdTree<float, string> tree;
