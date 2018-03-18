@@ -8,7 +8,7 @@ using System.Text;
 
 namespace KdTree
 {
-    public enum AddDuplicateBehavior
+	public enum AddDuplicateBehavior
 	{
 		Skip,
 		Error,
@@ -72,7 +72,7 @@ namespace KdTree
 						{
 							case AddDuplicateBehavior.Skip:
 								return false;
-								
+
 							case AddDuplicateBehavior.Error:
 								throw new DuplicateNodeError();
 
@@ -345,10 +345,31 @@ namespace KdTree
 				nearestNeighbours.Add(node, distanceSquaredToTarget);
 		}
 
+		/// <summary>
+		/// Performs a radial search.
+		/// </summary>
+		/// <param name="center">Center point</param>
+		/// <param name="radius">Radius to find neighbours within</param>
+		public KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius)
+		{
+			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey>(typeMath);
+			return RadialSearch(center, radius, nearestNeighbours);
+		}
+
+		/// <summary>
+		/// Performs a radial search up to a maximum count.
+		/// </summary>
+		/// <param name="center">Center point</param>
+		/// <param name="radius">Radius to find neighbours within</param>
+		/// <param name="count">Maximum number of neighbours</param>
 		public KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius, int count)
 		{
 			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey>(count, typeMath);
-			
+			return RadialSearch(center, radius, nearestNeighbours);
+		}
+
+		private KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius, NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey> nearestNeighbours)
+		{
 			AddNearestNeighbours(
 				root,
 				center,
@@ -357,7 +378,7 @@ namespace KdTree
 				nearestNeighbours,
 				typeMath.Multiply(radius, radius));
 
-			count = nearestNeighbours.Count;
+			var count = nearestNeighbours.Count;
 
 			var neighbourArray = new KdTreeNode<TKey, TValue>[count];
 
@@ -396,11 +417,11 @@ namespace KdTree
 
 		public TValue FindValueAt(TKey[] point)
 		{
-            if (TryFindValueAt(point, out TValue value))
-                return value;
-            else
-                return default(TValue);
-        }
+			if (TryFindValueAt(point, out TValue value))
+				return value;
+			else
+				return default(TValue);
+		}
 
 		public bool TryFindValue(TValue value, out TKey[] point)
 		{
@@ -442,11 +463,11 @@ namespace KdTree
 
 		public TKey[] FindValue(TValue value)
 		{
-            if (TryFindValue(value, out TKey[] point))
-                return point;
-            else
-                return null;
-        }
+			if (TryFindValue(value, out TKey[] point))
+				return point;
+			else
+				return null;
+		}
 
 		private void AddNodeToStringBuilder(KdTreeNode<TKey, TValue> node, StringBuilder sb, int depth)
 		{
@@ -456,7 +477,7 @@ namespace KdTree
 			{
 				for (var index = 0; index <= depth; index++)
 					sb.Append("\t");
-				
+
 				sb.Append(side == -1 ? "L " : "R ");
 
 				if (node[side] == null)
@@ -480,7 +501,7 @@ namespace KdTree
 		{
 			if (node == null)
 				return;
-			
+
 			nodes.Add(node);
 
 			for (var side = -1; side <= 1; side += 2)
@@ -542,7 +563,7 @@ namespace KdTree
 			if (toIndex > midIndex)
 				AddNodesBalanced(nodes, nextDimension, midIndex + 1, toIndex);
 		}
-		
+
 		public void Balance()
 		{
 			var nodeList = new List<KdTreeNode<TKey, TValue>>();
@@ -591,65 +612,65 @@ namespace KdTree
 
 		}
 
-        public IEnumerator<KdTreeNode<TKey, TValue>> GetEnumerator()
-        {
-            var left = new Stack<KdTreeNode<TKey, TValue>>();
-            var right = new Stack<KdTreeNode<TKey, TValue>>();
+		public IEnumerator<KdTreeNode<TKey, TValue>> GetEnumerator()
+		{
+			var left = new Stack<KdTreeNode<TKey, TValue>>();
+			var right = new Stack<KdTreeNode<TKey, TValue>>();
 
-            void addLeft(KdTreeNode<TKey, TValue> node)
-            {
-                if (node.LeftChild != null)
-                {
-                    left.Push(node.LeftChild);
-                }
-            }
+			void addLeft(KdTreeNode<TKey, TValue> node)
+			{
+				if (node.LeftChild != null)
+				{
+					left.Push(node.LeftChild);
+				}
+			}
 
-            void addRight(KdTreeNode<TKey, TValue> node)
-            {
-                if (node.RightChild != null)
-                {
-                    right.Push(node.RightChild);
-                }
-            }
+			void addRight(KdTreeNode<TKey, TValue> node)
+			{
+				if (node.RightChild != null)
+				{
+					right.Push(node.RightChild);
+				}
+			}
 
-            if (root != null)
-            {
-                yield return root;
+			if (root != null)
+			{
+				yield return root;
 
-                addLeft(root);
-                addRight(root);
+				addLeft(root);
+				addRight(root);
 
-                while (true)
-                {
-                    if (left.Any())
-                    {
-                        var item = left.Pop();
+				while (true)
+				{
+					if (left.Any())
+					{
+						var item = left.Pop();
 
-                        addLeft(item);
-                        addRight(item);
+						addLeft(item);
+						addRight(item);
 
-                        yield return item;
-                    }
-                    else if (right.Any())
-                    {
-                        var item = right.Pop();
+						yield return item;
+					}
+					else if (right.Any())
+					{
+						var item = right.Pop();
 
-                        addLeft(item);
-                        addRight(item);
+						addLeft(item);
+						addRight(item);
 
-                        yield return item;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-        }
+						yield return item;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+		}
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-    }
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+	}
 }

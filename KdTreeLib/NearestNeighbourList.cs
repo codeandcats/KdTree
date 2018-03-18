@@ -22,6 +22,14 @@ namespace KdTree
 			queue = new PriorityQueue<TItem, TDistance>(maxCapacity, distanceMath);
 		}
 
+		public NearestNeighbourList(ITypeMath<TDistance> distanceMath)
+		{
+			this.maxCapacity = int.MaxValue;
+			this.distanceMath = distanceMath;
+
+			queue = new PriorityQueue<TItem, TDistance>(distanceMath);
+		}
+
 		private PriorityQueue<TItem, TDistance> queue;
 
 		private ITypeMath<TDistance> distanceMath;

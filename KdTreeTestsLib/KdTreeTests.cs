@@ -14,7 +14,7 @@ struct City
 
 namespace KdTree.Tests
 {
-    [TestClass]
+	[TestClass]
 	public class KdTreeTests
 	{
 		private KdTree<float, string> tree;
@@ -31,7 +31,7 @@ namespace KdTree.Tests
 
 				new KdTreeNode<float, string>(new float[] { 2.5f, 2.5f }, "Root-Left"),
 				new KdTreeNode<float, string>(new float[] { 7.5f, 7.5f }, "Root-Right"),
-				
+
 				new KdTreeNode<float, string>(new float[] { 1, 10 }, "Root-Left-Left"),
 
 				new KdTreeNode<float, string>(new float[] { 10, 10 }, "Root-Right-Right")
@@ -230,7 +230,7 @@ namespace KdTree.Tests
 				toowoomba,
 				new City()
 				{
-					Address = "Brisbane, QLD, Australia", 
+					Address = "Brisbane, QLD, Australia",
 					Lat = -27.4710107f,
 					Long = 153.0234489f,
 					DistanceFromToowoomba = 1.16451615177537f
@@ -326,22 +326,106 @@ namespace KdTree.Tests
 			}
 		}
 
-        [TestMethod]
-        [TestCategory("KdTree")]
-        public void TestEnumerable()
-        {
-            AddTestNodes();
+		[TestMethod]
+		[TestCategory("KdTree")]
+		public void TestRadialSearch()
+		{
+			var toowoomba = new City()
+			{
+				Address = "Toowoomba, QLD, Australia",
+				Lat = -27.5829487f,
+				Long = 151.8643252f,
+				DistanceFromToowoomba = 0
+			};
 
-            foreach (var node in tree)
-            {
-                var testNode = testNodes.FirstOrDefault(n => n.Point == node.Point && n.Value == node.Value);
+			City[] cities = new City[]
+			{
+				toowoomba,
+				new City()
+				{
+					Address = "Brisbane, QLD, Australia",
+					Lat = -27.4710107f,
+					Long = 153.0234489f,
+					DistanceFromToowoomba = 1.16451615177537f
+				},
+				new City()
+				{
+					Address = "Goldcoast, QLD, Australia",
+					Lat = -28.0172605f,
+					Long = 153.4256987f,
+					DistanceFromToowoomba = 1.6206523211724f
+				},
+				new City()
+				{
+					Address = "Sunshine, QLD, Australia",
+					Lat = -27.3748288f,
+					Long = 153.0554193f,
+					DistanceFromToowoomba = 1.20913979664506f
+				},
+				new City()
+				{
+					Address = "Melbourne, VIC, Australia",
+					Lat = -37.814107f,
+					Long = 144.96328f,
+					DistanceFromToowoomba = 12.3410301438779f
+				},
+				new City()
+				{
+					Address = "Sydney, NSW, Australia",
+					Lat = -33.8674869f,
+					Long = 151.2069902f,
+					DistanceFromToowoomba = 6.31882185929341f
+				},
+				new City()
+				{
+					Address = "Perth, WA, Australia",
+					Lat = -31.9530044f,
+					Long = 115.8574693f,
+					DistanceFromToowoomba = 36.2710774395312f
+				},
+				new City()
+				{
+					Address = "Darwin, NT, Australia",
+					Lat = -12.4628198f,
+					Long = 130.8417694f,
+					DistanceFromToowoomba = 25.895292049265f
+				}
+			};
 
-                Assert.IsNotNull(testNode);
+			foreach (var city in cities)
+			{
+				tree.Add(new float[] { city.Long, -city.Lat }, city.Address);
+			}
+			var expectedNeighbours = cities
+				.OrderBy(p => p.DistanceFromToowoomba).ToList();
 
-                testNodes.Remove(testNode);
-            }
+			for (var i = 1; i < 100; i *= 2)
+			{
+				var actualNeighbours = tree.RadialSearch(new float[] { toowoomba.Long, -toowoomba.Lat }, i);
 
-            Assert.AreEqual(0, testNodes.Count);
-        }
-    }
+				for (var index = 0; index < actualNeighbours.Length; index++)
+				{
+					Assert.AreEqual(expectedNeighbours[index].Address, actualNeighbours[index].Value);
+				}
+			}
+		}
+
+		[TestMethod]
+		[TestCategory("KdTree")]
+		public void TestEnumerable()
+		{
+			AddTestNodes();
+
+			foreach (var node in tree)
+			{
+				var testNode = testNodes.FirstOrDefault(n => n.Point == node.Point && n.Value == node.Value);
+
+				Assert.IsNotNull(testNode);
+
+				testNodes.Remove(testNode);
+			}
+
+			Assert.AreEqual(0, testNodes.Count);
+		}
+	}
 }

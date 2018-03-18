@@ -20,6 +20,17 @@ namespace KdTree
 
 			this.priorityMath = priorityMath;
 		}
+		
+		///<remarks>
+		///This constructor will use a default capacity of 4.
+		///</remarks>
+		public PriorityQueue(ITypeMath<TPriority> priorityMath)
+		{
+			this.capacity = 4;
+			queue = new ItemPriority<TItem, TPriority>[capacity];
+
+			this.priorityMath = priorityMath;
+		}
 
 		private ITypeMath<TPriority> priorityMath;
 
