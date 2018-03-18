@@ -12,10 +12,10 @@
     <PackageLicenseUrl>https://raw.github.com/codeandcats/KdTree/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/codeandcats/KdTree</PackageProjectUrl>
     <PackageTags>kdtree kd-tree binary search tree bst spatial</PackageTags>
-    <PackageReleaseNotes>* Added netcore and netstandard support</PackageReleaseNotes>
+    <PackageReleaseNotes>* Remove requirement to limit number of result in radial search</PackageReleaseNotes>
     <Description>Generic multi-dimensional binary search tree.</Description>
     <PackageIconUrl>https://raw.githubusercontent.com/codeandcats/KdTree/master/Images/kdtree.png</PackageIconUrl>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
