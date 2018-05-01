@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace KdTree
@@ -594,26 +592,6 @@ namespace KdTree
 		{
 			if (root != null)
 				RemoveChildNodes(root);
-		}
-
-		public void SaveToFile(string filename)
-		{
-			BinaryFormatter formatter = new BinaryFormatter();
-			using (FileStream stream = File.Create(filename))
-			{
-				formatter.Serialize(stream, this);
-				stream.Flush();
-			}
-		}
-
-		public static KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics> LoadFromFile(string filename)
-		{
-			BinaryFormatter formatter = new BinaryFormatter();
-			using (FileStream stream = File.Open(filename, FileMode.Open))
-			{
-				return (KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics>)formatter.Deserialize(stream);
-			}
-
 		}
 
 		public IEnumerator<(TKeyBundle Point, TValue Value)> GetEnumerator()
