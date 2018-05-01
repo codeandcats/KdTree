@@ -2,26 +2,27 @@
 
 namespace KdTree
 {
-    public interface IKdTree<TKey, TValue> : IEnumerable<KdTreeNode<TKey, TValue>>
+	public interface IKdTree<TKey, TValue, TKeyBundle> : IEnumerable<KdTreeNode<TKey, TValue, TKeyBundle>>
+		where TKeyBundle : IBundle<TKey>
 	{
-		bool Add(TKey[] point, TValue value);
+		bool Add(TKeyBundle point, TValue value);
 
-		bool TryFindValueAt(TKey[] point, out TValue value);
+		bool TryFindValueAt(TKeyBundle point, out TValue value);
 
-		TValue FindValueAt(TKey[] point);
+		TValue FindValueAt(TKeyBundle point);
 
-		bool TryFindValue(TValue value, out TKey[] point);
+		bool TryFindValue(TValue value, out TKeyBundle point);
 
-		TKey[] FindValue(TValue value);
+		TKeyBundle FindValue(TValue value);
 
-		KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius, int count);
+		KdTreeNode<TKey, TValue, TKeyBundle>[] RadialSearch(TKeyBundle center, TKey radius, int count);
 
-		void RemoveAt(TKey[] point);
+		void RemoveAt(TKeyBundle point);
 
 		void Clear();
 
-		KdTreeNode<TKey, TValue>[] GetNearestNeighbours(TKey[] point, int count = int.MaxValue);
-		
+		KdTreeNode<TKey, TValue, TKeyBundle>[] GetNearestNeighbours(TKeyBundle point, int count = int.MaxValue);
+
 		int Count { get; }
 	}
 }

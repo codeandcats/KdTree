@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using NeighbourList = KdTree.NearestNeighbourList<Planet, float, KdTree.Math.FloatMath>;
 
 struct Planet
 {
@@ -11,16 +12,16 @@ struct Planet
 
 namespace KdTree.Tests
 {
-    [TestClass]
+	[TestClass]
 	public class NearestNeighbourListTests
 	{
-		private NearestNeighbourList<Planet, float> nearestNeighbours;
+		private NeighbourList nearestNeighbours;
 		private List<Planet> neighbouringPlanets;
 
 		[TestInitialize]
 		public void Setup()
 		{
-			nearestNeighbours = new NearestNeighbourList<Planet, float>(5, new FloatMath());
+			nearestNeighbours = new NeighbourList(5);
 
 			neighbouringPlanets = new List<Planet>();
 			neighbouringPlanets.AddRange(new Planet[]

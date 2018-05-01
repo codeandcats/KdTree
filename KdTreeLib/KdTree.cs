@@ -24,41 +24,41 @@ namespace KdTree
 	}
 
 	[Serializable]
-	public class KdTree<TKey, TValue> : IKdTree<TKey, TValue>
+	public class KdTree<TKey, TValue, TKeyBundle, TNumerics, TMetrics> : IKdTree<TKey, TValue, TKeyBundle>
+		where TKeyBundle : IBundle<TKey>
+		where TNumerics : struct, INumerics<TKey>
+		where TMetrics : struct, IMetrics<TKey, TKeyBundle>
 	{
-		public KdTree(int dimensions, ITypeMath<TKey> typeMath)
+		public KdTree(int dimensions)
 		{
 			this.dimensions = dimensions;
-			this.typeMath = typeMath;
 			Count = 0;
 		}
 
-		public KdTree(int dimensions, ITypeMath<TKey> typeMath, AddDuplicateBehavior addDuplicateBehavior)
-			: this(dimensions, typeMath)
+		public KdTree(int dimensions, AddDuplicateBehavior addDuplicateBehavior)
+			: this(dimensions)
 		{
 			AddDuplicateBehavior = addDuplicateBehavior;
 		}
 
 		private int dimensions;
 
-		private ITypeMath<TKey> typeMath = null;
-
-		private KdTreeNode<TKey, TValue> root = null;
+		private KdTreeNode<TKey, TValue, TKeyBundle> root = null;
 
 		public AddDuplicateBehavior AddDuplicateBehavior { get; private set; }
 
-		public bool Add(TKey[] point, TValue value)
+		public bool Add(TKeyBundle point, TValue value)
 		{
-			var nodeToAdd = new KdTreeNode<TKey, TValue>(point, value);
+			var nodeToAdd = new KdTreeNode<TKey, TValue, TKeyBundle>(point, value);
 
 			if (root == null)
 			{
-				root = new KdTreeNode<TKey, TValue>(point, value);
+				root = new KdTreeNode<TKey, TValue, TKeyBundle>(point, value);
 			}
 			else
 			{
 				int dimension = -1;
-				KdTreeNode<TKey, TValue> parent = root;
+				KdTreeNode<TKey, TValue, TKeyBundle> parent = root;
 
 				do
 				{
@@ -66,7 +66,7 @@ namespace KdTree
 					dimension = (dimension + 1) % dimensions;
 
 					// Does the node we're adding have the same hyperpoint as this node?
-					if (typeMath.AreEqual(point, parent.Point))
+					if (default(TMetrics).Equals(point, parent.Point))
 					{
 						switch (AddDuplicateBehavior)
 						{
@@ -87,7 +87,7 @@ namespace KdTree
 					}
 
 					// Which side does this node sit under in relation to it's parent at this level?
-					int compare = typeMath.Compare(point[dimension], parent.Point[dimension]);
+					int compare = default(TNumerics).Compare(point[dimension], parent.Point[dimension]);
 
 					if (parent[compare] == null)
 					{
@@ -106,7 +106,7 @@ namespace KdTree
 			return true;
 		}
 
-		private void ReaddChildNodes(KdTreeNode<TKey, TValue> removedNode)
+		private void ReaddChildNodes(KdTreeNode<TKey, TValue, TKeyBundle> removedNode)
 		{
 			if (removedNode.IsLeaf)
 				return;
@@ -114,9 +114,9 @@ namespace KdTree
 			// The folllowing code might seem a little redundant but we're using 
 			// 2 queues so we can add the child nodes back in, in (more or less) 
 			// the same order they were added in the first place
-			var nodesToReadd = new Queue<KdTreeNode<TKey, TValue>>();
+			var nodesToReadd = new Queue<KdTreeNode<TKey, TValue, TKeyBundle>>();
 
-			var nodesToReaddQueue = new Queue<KdTreeNode<TKey, TValue>>();
+			var nodesToReaddQueue = new Queue<KdTreeNode<TKey, TValue, TKeyBundle>>();
 
 			if (removedNode.LeftChild != null)
 				nodesToReaddQueue.Enqueue(removedNode.LeftChild);
@@ -150,15 +150,15 @@ namespace KdTree
 			}
 		}
 
-		public void RemoveAt(TKey[] point)
+		public void RemoveAt(TKeyBundle point)
 		{
 			// Is tree empty?
 			if (root == null)
 				return;
 
-			KdTreeNode<TKey, TValue> node;
+			KdTreeNode<TKey, TValue, TKeyBundle> node;
 
-			if (typeMath.AreEqual(point, root.Point))
+			if (default(TMetrics).Equals(point, root.Point))
 			{
 				node = root;
 				root = null;
@@ -174,13 +174,13 @@ namespace KdTree
 			{
 				dimension = (dimension + 1) % dimensions;
 
-				int compare = typeMath.Compare(point[dimension], node.Point[dimension]);
+				int compare = default(TNumerics).Compare(point[dimension], node.Point[dimension]);
 
 				if (node[compare] == null)
 					// Can't find node
 					return;
 
-				if (typeMath.AreEqual(point, node[compare].Point))
+				if (default(TMetrics).Equals(point, node[compare].Point))
 				{
 					var nodeToRemove = node[compare];
 					node[compare] = null;
@@ -194,7 +194,7 @@ namespace KdTree
 			while (node != null);
 		}
 
-		public KdTreeNode<TKey, TValue>[] GetNearestNeighbours(TKey[] point, int count)
+		public KdTreeNode<TKey, TValue, TKeyBundle>[] GetNearestNeighbours(TKeyBundle point, int count)
 		{
 			if (count > Count)
 				count = Count;
@@ -205,19 +205,19 @@ namespace KdTree
 			}
 
 			if (count == 0)
-				return new KdTreeNode<TKey, TValue>[0];
+				return new KdTreeNode<TKey, TValue, TKeyBundle>[0];
 
-			var neighbours = new KdTreeNode<TKey, TValue>[count];
+			var neighbours = new KdTreeNode<TKey, TValue, TKeyBundle>[count];
 
-			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey>(count, typeMath);
+			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics>(count);
 
-			var rect = HyperRect<TKey>.Infinite(dimensions, typeMath);
+			var rect = HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(dimensions);
 
-			AddNearestNeighbours(root, point, rect, 0, nearestNeighbours, typeMath.MaxValue);
+			AddNearestNeighbours(root, point, rect, 0, nearestNeighbours, default(TNumerics).MaxValue);
 
 			count = nearestNeighbours.Count;
 
-			var neighbourArray = new KdTreeNode<TKey, TValue>[count];
+			var neighbourArray = new KdTreeNode<TKey, TValue, TKeyBundle>[count];
 
 			for (var index = 0; index < count; index++)
 				neighbourArray[count - index - 1] = nearestNeighbours.RemoveFurtherest();
@@ -263,11 +263,11 @@ namespace KdTree
 		 */
 
 		private void AddNearestNeighbours(
-			KdTreeNode<TKey, TValue> node,
-			TKey[] target,
-			HyperRect<TKey> rect,
+			KdTreeNode<TKey, TValue, TKeyBundle> node,
+			TKeyBundle target,
+			HyperRect<TKey, TKeyBundle, TNumerics> rect,
 			int depth,
-			NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey> nearestNeighbours,
+			NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics> nearestNeighbours,
 			TKey maxSearchRadiusSquared)
 		{
 			if (node == null)
@@ -285,7 +285,7 @@ namespace KdTree
 			rightRect.MinPoint[dimension] = node.Point[dimension];
 
 			// Which side does the target reside in?
-			int compare = typeMath.Compare(target[dimension], node.Point[dimension]);
+			int compare = default(TNumerics).Compare(target[dimension], node.Point[dimension]);
 
 			var nearerRect = compare <= 0 ? leftRect : rightRect;
 			var furtherRect = compare <= 0 ? rightRect : leftRect;
@@ -310,14 +310,14 @@ namespace KdTree
 			// Walk down into the further branch but only if our capacity hasn't been reached 
 			// OR if there's a region in the further rect that's closer to the target than our
 			// current furtherest nearest neighbour
-			TKey[] closestPointInFurtherRect = furtherRect.GetClosestPoint(target, typeMath);
-			distanceSquaredToTarget = typeMath.DistanceSquaredBetweenPoints(closestPointInFurtherRect, target);
+			TKeyBundle closestPointInFurtherRect = furtherRect.GetClosestPoint(target);
+			distanceSquaredToTarget = default(TMetrics).DistanceSquaredBetweenPoints(closestPointInFurtherRect, target);
 
-			if (typeMath.Compare(distanceSquaredToTarget, maxSearchRadiusSquared) <= 0)
+			if (default(TNumerics).Compare(distanceSquaredToTarget, maxSearchRadiusSquared) <= 0)
 			{
 				if (nearestNeighbours.IsCapacityReached)
 				{
-					if (typeMath.Compare(distanceSquaredToTarget, nearestNeighbours.GetFurtherestDistance()) < 0)
+					if (default(TNumerics).Compare(distanceSquaredToTarget, nearestNeighbours.GetFurtherestDistance()) < 0)
 						AddNearestNeighbours(
 							furtherNode,
 							target,
@@ -339,9 +339,9 @@ namespace KdTree
 			}
 
 			// Try to add the current node to our nearest neighbours list
-			distanceSquaredToTarget = typeMath.DistanceSquaredBetweenPoints(node.Point, target);
+			distanceSquaredToTarget = default(TMetrics).DistanceSquaredBetweenPoints(node.Point, target);
 
-			if (typeMath.Compare(distanceSquaredToTarget, maxSearchRadiusSquared) <= 0)
+			if (default(TNumerics).Compare(distanceSquaredToTarget, maxSearchRadiusSquared) <= 0)
 				nearestNeighbours.Add(node, distanceSquaredToTarget);
 		}
 
@@ -350,9 +350,9 @@ namespace KdTree
 		/// </summary>
 		/// <param name="center">Center point</param>
 		/// <param name="radius">Radius to find neighbours within</param>
-		public KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius)
+		public KdTreeNode<TKey, TValue, TKeyBundle>[] RadialSearch(TKeyBundle center, TKey radius)
 		{
-			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey>(typeMath);
+			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics>();
 			return RadialSearch(center, radius, nearestNeighbours);
 		}
 
@@ -362,25 +362,25 @@ namespace KdTree
 		/// <param name="center">Center point</param>
 		/// <param name="radius">Radius to find neighbours within</param>
 		/// <param name="count">Maximum number of neighbours</param>
-		public KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius, int count)
+		public KdTreeNode<TKey, TValue, TKeyBundle>[] RadialSearch(TKeyBundle center, TKey radius, int count)
 		{
-			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey>(count, typeMath);
+			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics>(count);
 			return RadialSearch(center, radius, nearestNeighbours);
 		}
 
-		private KdTreeNode<TKey, TValue>[] RadialSearch(TKey[] center, TKey radius, NearestNeighbourList<KdTreeNode<TKey, TValue>, TKey> nearestNeighbours)
+		private KdTreeNode<TKey, TValue, TKeyBundle>[] RadialSearch(TKeyBundle center, TKey radius, NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics> nearestNeighbours)
 		{
 			AddNearestNeighbours(
 				root,
 				center,
-				HyperRect<TKey>.Infinite(dimensions, typeMath),
+				HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(dimensions),
 				0,
 				nearestNeighbours,
-				typeMath.Multiply(radius, radius));
+				default(TNumerics).Multiply(radius, radius));
 
 			var count = nearestNeighbours.Count;
 
-			var neighbourArray = new KdTreeNode<TKey, TValue>[count];
+			var neighbourArray = new KdTreeNode<TKey, TValue, TKeyBundle>[count];
 
 			for (var index = 0; index < count; index++)
 				neighbourArray[count - index - 1] = nearestNeighbours.RemoveFurtherest();
@@ -390,7 +390,7 @@ namespace KdTree
 
 		public int Count { get; private set; }
 
-		public bool TryFindValueAt(TKey[] point, out TValue value)
+		public bool TryFindValueAt(TKeyBundle point, out TValue value)
 		{
 			var parent = root;
 			int dimension = -1;
@@ -401,7 +401,7 @@ namespace KdTree
 					value = default(TValue);
 					return false;
 				}
-				else if (typeMath.AreEqual(point, parent.Point))
+				else if (default(TMetrics).Equals(point, parent.Point))
 				{
 					value = parent.Value;
 					return true;
@@ -409,13 +409,13 @@ namespace KdTree
 
 				// Keep searching
 				dimension = (dimension + 1) % dimensions;
-				int compare = typeMath.Compare(point[dimension], parent.Point[dimension]);
+				int compare = default(TNumerics).Compare(point[dimension], parent.Point[dimension]);
 				parent = parent[compare];
 			}
 			while (true);
 		}
 
-		public TValue FindValueAt(TKey[] point)
+		public TValue FindValueAt(TKeyBundle point)
 		{
 			if (TryFindValueAt(point, out TValue value))
 				return value;
@@ -423,16 +423,16 @@ namespace KdTree
 				return default(TValue);
 		}
 
-		public bool TryFindValue(TValue value, out TKey[] point)
+		public bool TryFindValue(TValue value, out TKeyBundle point)
 		{
 			if (root == null)
 			{
-				point = null;
+				point = default(TKeyBundle);
 				return false;
 			}
 
 			// First-in, First-out list of nodes to search
-			var nodesToSearch = new Queue<KdTreeNode<TKey, TValue>>();
+			var nodesToSearch = new Queue<KdTreeNode<TKey, TValue, TKeyBundle>>();
 
 			nodesToSearch.Enqueue(root);
 
@@ -457,19 +457,19 @@ namespace KdTree
 				}
 			}
 
-			point = null;
+			point = default(TKeyBundle);
 			return false;
 		}
 
-		public TKey[] FindValue(TValue value)
+		public TKeyBundle FindValue(TValue value)
 		{
-			if (TryFindValue(value, out TKey[] point))
+			if (TryFindValue(value, out TKeyBundle point))
 				return point;
 			else
-				return null;
+				return default(TKeyBundle);
 		}
 
-		private void AddNodeToStringBuilder(KdTreeNode<TKey, TValue> node, StringBuilder sb, int depth)
+		private void AddNodeToStringBuilder(KdTreeNode<TKey, TValue, TKeyBundle> node, StringBuilder sb, int depth)
 		{
 			sb.AppendLine(node.ToString());
 
@@ -497,7 +497,7 @@ namespace KdTree
 			return sb.ToString();
 		}
 
-		private void AddNodesToList(KdTreeNode<TKey, TValue> node, List<KdTreeNode<TKey, TValue>> nodes)
+		private void AddNodesToList(KdTreeNode<TKey, TValue, TKeyBundle> node, List<KdTreeNode<TKey, TValue, TKeyBundle>> nodes)
 		{
 			if (node == null)
 				return;
@@ -514,7 +514,7 @@ namespace KdTree
 			}
 		}
 
-		private void SortNodesArray(KdTreeNode<TKey, TValue>[] nodes, int byDimension, int fromIndex, int toIndex)
+		private void SortNodesArray(KdTreeNode<TKey, TValue, TKeyBundle>[] nodes, int byDimension, int fromIndex, int toIndex)
 		{
 			for (var index = fromIndex + 1; index <= toIndex; index++)
 			{
@@ -524,7 +524,7 @@ namespace KdTree
 				{
 					var a = nodes[newIndex - 1];
 					var b = nodes[newIndex];
-					if (typeMath.Compare(b.Point[byDimension], a.Point[byDimension]) < 0)
+					if (default(TNumerics).Compare(b.Point[byDimension], a.Point[byDimension]) < 0)
 					{
 						nodes[newIndex - 1] = b;
 						nodes[newIndex] = a;
@@ -535,7 +535,7 @@ namespace KdTree
 			}
 		}
 
-		private void AddNodesBalanced(KdTreeNode<TKey, TValue>[] nodes, int byDimension, int fromIndex, int toIndex)
+		private void AddNodesBalanced(KdTreeNode<TKey, TValue, TKeyBundle>[] nodes, int byDimension, int fromIndex, int toIndex)
 		{
 			if (fromIndex == toIndex)
 			{
@@ -566,7 +566,7 @@ namespace KdTree
 
 		public void Balance()
 		{
-			var nodeList = new List<KdTreeNode<TKey, TValue>>();
+			var nodeList = new List<KdTreeNode<TKey, TValue, TKeyBundle>>();
 			AddNodesToList(root, nodeList);
 
 			Clear();
@@ -574,7 +574,7 @@ namespace KdTree
 			AddNodesBalanced(nodeList.ToArray(), 0, 0, nodeList.Count - 1);
 		}
 
-		private void RemoveChildNodes(KdTreeNode<TKey, TValue> node)
+		private void RemoveChildNodes(KdTreeNode<TKey, TValue, TKeyBundle> node)
 		{
 			for (var side = -1; side <= 1; side += 2)
 			{
@@ -602,22 +602,22 @@ namespace KdTree
 			}
 		}
 
-		public static KdTree<TKey, TValue> LoadFromFile(string filename)
+		public static KdTree<TKey, TValue, TKeyBundle, TNumerics, TMetrics> LoadFromFile(string filename)
 		{
 			BinaryFormatter formatter = new BinaryFormatter();
 			using (FileStream stream = File.Open(filename, FileMode.Open))
 			{
-				return (KdTree<TKey, TValue>)formatter.Deserialize(stream);
+				return (KdTree<TKey, TValue, TKeyBundle, TNumerics, TMetrics>)formatter.Deserialize(stream);
 			}
 
 		}
 
-		public IEnumerator<KdTreeNode<TKey, TValue>> GetEnumerator()
+		public IEnumerator<KdTreeNode<TKey, TValue, TKeyBundle>> GetEnumerator()
 		{
-			var left = new Stack<KdTreeNode<TKey, TValue>>();
-			var right = new Stack<KdTreeNode<TKey, TValue>>();
+			var left = new Stack<KdTreeNode<TKey, TValue, TKeyBundle>>();
+			var right = new Stack<KdTreeNode<TKey, TValue, TKeyBundle>>();
 
-			void addLeft(KdTreeNode<TKey, TValue> node)
+			void addLeft(KdTreeNode<TKey, TValue, TKeyBundle> node)
 			{
 				if (node.LeftChild != null)
 				{
@@ -625,7 +625,7 @@ namespace KdTree
 				}
 			}
 
-			void addRight(KdTreeNode<TKey, TValue> node)
+			void addRight(KdTreeNode<TKey, TValue, TKeyBundle> node)
 			{
 				if (node.RightChild != null)
 				{

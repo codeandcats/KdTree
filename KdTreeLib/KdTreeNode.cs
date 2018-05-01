@@ -3,26 +3,27 @@ using System.Text;
 
 namespace KdTree
 {
-    [Serializable]
-	public class KdTreeNode<TKey, TValue>
+	[Serializable]
+	public class KdTreeNode<TKey, TValue, TKeyBundle>
+		where TKeyBundle : IBundle<TKey>
 	{
 		public KdTreeNode()
 		{
 		}
 
-		public KdTreeNode(TKey[] point, TValue value)
+		public KdTreeNode(TKeyBundle point, TValue value)
 		{
 			Point = point;
 			Value = value;
 		}
 
-		public TKey[] Point;
+		public TKeyBundle Point;
 		public TValue Value = default(TValue);
 
-		internal KdTreeNode<TKey, TValue> LeftChild = null;
-		internal KdTreeNode<TKey, TValue> RightChild = null;
+		internal KdTreeNode<TKey, TValue, TKeyBundle> LeftChild = null;
+		internal KdTreeNode<TKey, TValue, TKeyBundle> RightChild = null;
 
-		internal KdTreeNode<TKey, TValue> this[int compare]
+		internal KdTreeNode<TKey, TValue, TKeyBundle> this[int compare]
 		{
 			get
 			{

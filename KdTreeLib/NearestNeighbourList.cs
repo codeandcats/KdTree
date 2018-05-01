@@ -2,7 +2,7 @@
 
 namespace KdTree
 {
-    public interface INearestNeighbourList<TItem, TDistance>
+	public interface INearestNeighbourList<TItem, TDistance>
 	{
 		bool Add(TItem item, TDistance distance);
 		TItem GetFurtherest();
@@ -12,27 +12,24 @@ namespace KdTree
 		int Count { get; }
 	}
 
-	public class NearestNeighbourList<TItem, TDistance> : INearestNeighbourList<TItem, TDistance>
+	public class NearestNeighbourList<TItem, TDistance, TNumerics> : INearestNeighbourList<TItem, TDistance>
+		where TNumerics : struct, INumerics<TDistance>
 	{
-		public NearestNeighbourList(int maxCapacity, ITypeMath<TDistance> distanceMath)
+		public NearestNeighbourList(int maxCapacity)
 		{
 			this.maxCapacity = maxCapacity;
-			this.distanceMath = distanceMath;
 
-			queue = new PriorityQueue<TItem, TDistance>(maxCapacity, distanceMath);
+			queue = new PriorityQueue<TItem, TDistance, TNumerics>(maxCapacity);
 		}
 
-		public NearestNeighbourList(ITypeMath<TDistance> distanceMath)
+		public NearestNeighbourList()
 		{
 			this.maxCapacity = int.MaxValue;
-			this.distanceMath = distanceMath;
 
-			queue = new PriorityQueue<TItem, TDistance>(distanceMath);
+			queue = new PriorityQueue<TItem, TDistance, TNumerics>();
 		}
 
-		private PriorityQueue<TItem, TDistance> queue;
-
-		private ITypeMath<TDistance> distanceMath;
+		private PriorityQueue<TItem, TDistance, TNumerics> queue;
 
 		private int maxCapacity;
 		public int MaxCapacity { get { return maxCapacity; } }
@@ -46,7 +43,7 @@ namespace KdTree
 				// If the distance of this item is less than the distance of the last item
 				// in our neighbour list then pop that neighbour off and push this one on
 				// otherwise don't even bother adding this item
-				if (distanceMath.Compare(distance, queue.GetHighestPriority()) < 0)
+				if (default(TNumerics).Compare(distance, queue.GetHighestPriority()) < 0)
 				{
 					queue.Dequeue();
 					queue.Enqueue(item, distance);

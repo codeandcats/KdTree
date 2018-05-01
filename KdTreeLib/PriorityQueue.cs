@@ -8,31 +8,26 @@ struct ItemPriority<TItem, TPriority>
 
 namespace KdTree
 {
-    public class PriorityQueue<TItem, TPriority> : IPriorityQueue<TItem, TPriority>
+	public class PriorityQueue<TItem, TPriority, TNumerics> : IPriorityQueue<TItem, TPriority>
+		where TNumerics : struct, INumerics<TPriority>
 	{
-		public PriorityQueue(int capacity, ITypeMath<TPriority> priorityMath)
+		public PriorityQueue(int capacity)
 		{
 			if (capacity <= 0)
 				throw new ArgumentException("Capacity must be greater than zero");
 
 			this.capacity = capacity;
 			queue = new ItemPriority<TItem, TPriority>[capacity];
-
-			this.priorityMath = priorityMath;
 		}
-		
+
 		///<remarks>
 		///This constructor will use a default capacity of 4.
 		///</remarks>
-		public PriorityQueue(ITypeMath<TPriority> priorityMath)
+		public PriorityQueue()
 		{
 			this.capacity = 4;
 			queue = new ItemPriority<TItem, TPriority>[capacity];
-
-			this.priorityMath = priorityMath;
 		}
-
-		private ITypeMath<TPriority> priorityMath;
 
 		private ItemPriority<TItem, TPriority>[] queue;
 
@@ -66,7 +61,7 @@ namespace KdTree
 
 			queue[newItemIndex] = new ItemPriority<TItem, TPriority> { Item = item, Priority = priority };
 
-			ReorderItem(newItemIndex, -1); 
+			ReorderItem(newItemIndex, -1);
 		}
 
 		public TItem Dequeue()
@@ -74,7 +69,7 @@ namespace KdTree
 			TItem item = queue[0].Item;
 
 			queue[0].Item = default(TItem);
-			queue[0].Priority = priorityMath.MinValue;
+			queue[0].Priority = default(TNumerics).MinValue;
 
 			ReorderItem(0, 1);
 
@@ -96,7 +91,7 @@ namespace KdTree
 			{
 				var next = queue[nextIndex];
 
-				int compare = priorityMath.Compare(item.Priority, next.Priority);
+				int compare = default(TNumerics).Compare(item.Priority, next.Priority);
 
 				// If we're moving up and our priority is higher than the next priority then swap
 				// Or if we're moving down and our priority is lower than the next priority then swap

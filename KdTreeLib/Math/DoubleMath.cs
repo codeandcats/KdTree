@@ -1,69 +1,73 @@
-﻿using System;
+﻿using System.Runtime.CompilerServices;
 
 namespace KdTree.Math
 {
-    [Serializable]
-    public class DoubleMath : TypeMath<double>
-    {
-        public override int Compare(double a, double b)
-        {
-            return a.CompareTo(b);
-        }
+	public struct DoublePair : IBundle<double>
+	{
+		public double X;
+		public double Y;
 
-        public override bool AreEqual(double a, double b)
-        {
-            return a == b;
-        }
+		public DoublePair(double x, double y) => (X, Y) = (x, y);
 
-        public override double MinValue
-        {
-            get { return double.MinValue; }
-        }
+		public double this[int index]
+		{
+			get => Unsafe.Add(ref Unsafe.As<DoublePair, double>(ref this), index);
+			set => Unsafe.Add(ref Unsafe.As<DoublePair, double>(ref this), index) = value;
+		}
 
-        public override double MaxValue
-        {
-            get { return double.MaxValue; }
-        }
+		public int Length => 2;
 
-        public override double Zero
-        {
-            get { return 0; }
-        }
+		public bool Equals(DoublePair other) => X == other.X && Y == other.Y;
+		public static bool operator ==(DoublePair a, DoublePair b) => a.X == b.X && a.Y == b.Y;
+		public static bool operator !=(DoublePair a, DoublePair b) => a.X != b.X || a.Y != b.Y;
+		public override bool Equals(object obj) => obj is DoublePair other && Equals(other);
+		public override int GetHashCode() => X.GetHashCode() ^ Y.GetHashCode();
+	}
 
-        public override double NegativeInfinity { get { return double.NegativeInfinity; } }
+	public struct DoubleEuclideanMetic : IMetrics<double, DoublePair>
+	{
+		public double DistanceSquaredBetweenPoints(DoublePair a, DoublePair b)
+		{
+			double distance = 0;
+			int dimensions = a.Length;
 
-        public override double PositiveInfinity { get { return double.PositiveInfinity; } }
+			// Return the absolute distance bewteen 2 hyper points
+			for (var dimension = 0; dimension < dimensions; dimension++)
+			{
+				double distOnThisAxis = a[dimension] - b[dimension];
+				double distOnThisAxisSquared = distOnThisAxis * distOnThisAxis;
 
-        public override double Add(double a, double b)
-        {
-            return a + b;
-        }
+				distance = distance + distOnThisAxisSquared;
+			}
 
-        public override double Subtract(double a, double b)
-        {
-            return a - b;
-        }
+			return distance;
+		}
 
-        public override double Multiply(double a, double b)
-        {
-            return a * b;
-        }
+		public bool Equals(DoublePair x, DoublePair y) => x.X == y.X && x.Y == y.Y;
+		public int GetHashCode(DoublePair obj) => obj.GetHashCode();
+	}
 
-        public override double DistanceSquaredBetweenPoints(double[] a, double[] b)
-        {
-            double distance = Zero;
-            int dimensions = a.Length;
+	public struct DoubleMath : INumerics<double>
+	{
+		public int Compare(double a, double b) => a.CompareTo(b);
 
-            // Return the absolute distance bewteen 2 hyper points
-            for (var dimension = 0; dimension < dimensions; dimension++)
-            {
-                double distOnThisAxis = Subtract(a[dimension], b[dimension]);
-                double distOnThisAxisSquared = Multiply(distOnThisAxis, distOnThisAxis);
+		public double MinValue => double.MinValue;
 
-                distance = Add(distance, distOnThisAxisSquared);
-            }
+		public double MaxValue => double.MaxValue;
 
-            return distance;
-        }
-    }
+		public double Zero => 0;
+
+		public double NegativeInfinity => double.NegativeInfinity;
+
+		public double PositiveInfinity => double.PositiveInfinity;
+
+		public double Add(double a, double b) => a + b;
+
+		public double Subtract(double a, double b) => a - b;
+
+		public double Multiply(double a, double b) => a * b;
+
+		public bool Equals(double x, double y) => x == y;
+		public int GetHashCode(double obj) => obj.GetHashCode();
+	}
 }

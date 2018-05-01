@@ -11,17 +11,17 @@ struct Person
 
 namespace KdTree.Tests
 {
-    [TestClass]
+	[TestClass]
 	public class PriorityQueueTests
 	{
-		private PriorityQueue<string, float> queue;
+		private PriorityQueue<string, float, FloatMath> queue;
 		private List<Person> people;
 
 		[TestInitialize]
 		public void Setup()
 		{
-			queue = new PriorityQueue<string, float>(2, new FloatMath());
-			
+			queue = new PriorityQueue<string, float, FloatMath>(2);
+
 			people = new List<Person>();
 			people.AddRange(new Person[]
 			{
