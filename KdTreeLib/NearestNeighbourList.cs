@@ -6,6 +6,8 @@ namespace KdTree
 	public partial class NearestNeighbourList<TItem, TDistance, TNumerics>
 		where TNumerics : struct, INumerics<TDistance>
 	{
+		private const int DefaultCapacity = 32;
+
 		public interface INearestNeighbourList
 		{
 			bool Add(TItem item, TDistance distance);
@@ -15,7 +17,10 @@ namespace KdTree
 
 		public class UnlimitedList : INearestNeighbourList
 		{
-			List<(TItem, TDistance)> _items = new List<(TItem, TDistance)>();
+			List<(TItem, TDistance)> _items;
+
+			public UnlimitedList() : this(DefaultCapacity) { }
+			public UnlimitedList(int capacity) => _items = new List<(TItem, TDistance)>(capacity);
 
 			public TDistance FurtherestDistance => default(TNumerics).Zero;
 
@@ -34,28 +39,23 @@ namespace KdTree
 
 		public class List : INearestNeighbourList
 		{
-			public List(int maxCapacity)
+			public List(int maxCount, int capacity)
 			{
-				MaxCapacity = maxCapacity;
-				queue = maxCapacity == int.MaxValue
-					? new PriorityQueue<TItem, TDistance, TNumerics>()
-					: new PriorityQueue<TItem, TDistance, TNumerics>(maxCapacity);
+				MaxCount = maxCount;
+				queue = new PriorityQueue<TItem, TDistance, TNumerics>(capacity);
 			}
 
-			public List()
-			{
-				MaxCapacity = int.MaxValue;
-				queue = new PriorityQueue<TItem, TDistance, TNumerics>();
-			}
+			public List(int maxCount) : this(maxCount, DefaultCapacity) { }
+			public List() : this(int.MaxValue, DefaultCapacity) { }
 
 			private PriorityQueue<TItem, TDistance, TNumerics> queue;
-			public int MaxCapacity { get; }
+			public int MaxCount { get; }
 
 			public int Count { get { return queue.Count; } }
 
 			public bool Add(TItem item, TDistance distance)
 			{
-				if (queue.Count >= MaxCapacity)
+				if (queue.Count >= MaxCount)
 				{
 					// If the distance of this item is less than the distance of the last item
 					// in our neighbour list then pop that neighbour off and push this one on
@@ -77,7 +77,7 @@ namespace KdTree
 			}
 
 			public TDistance FurtherestDistance => queue.GetHighestPriority();
-			public bool IsFull => Count == MaxCapacity;
+			public bool IsFull => Count == MaxCount;
 
 			public TItem RemoveFurtherest()
 			{
@@ -105,10 +105,16 @@ namespace KdTree
 		public static NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.List CreateNearestNeighbourList()
 			=> new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.List();
 
-		public static NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.List CreateNearestNeighbourList(int maxCapacity)
-			=> new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.List(maxCapacity);
+		public static NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.List CreateNearestNeighbourList(int maxCount)
+			=> new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.List(maxCount);
+
+		public static NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.List CreateNearestNeighbourList(int maxCount, int capacity)
+			=> new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.List(maxCount, capacity);
 
 		public static NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.UnlimitedList CreateUnlimitedList()
 			=> new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.UnlimitedList();
+
+		public static NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.UnlimitedList CreateUnlimitedList(int capacity)
+			=> new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.UnlimitedList(capacity);
 	}
 }
