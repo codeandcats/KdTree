@@ -38,7 +38,7 @@ namespace KdTreeBenchmark
 		public void RadialSearch()
 		{
 			var rand = new Random(1);
-			var tree = new KdTree<float, int, FloatPair, FloatMath, FloatChebyshevMetrics>(2);
+			var tree = new KdTree<float, int, FloatPair, Integer._2, FloatMath, FloatChebyshevMetrics>();
 
 			for (int i = 0; i < NumItems; i++)
 			{

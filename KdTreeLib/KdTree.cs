@@ -24,24 +24,21 @@ namespace KdTree
 	}
 
 	[Serializable]
-	public class KdTree<TKey, TValue, TKeyBundle, TNumerics, TMetrics> : IKdTree<TKey, TValue, TKeyBundle>
+	public class KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics> : IKdTree<TKey, TValue, TKeyBundle>
 		where TKeyBundle : IBundle<TKey>
+		where TDimension : struct, IInteger
 		where TNumerics : struct, INumerics<TKey>
 		where TMetrics : struct, IMetrics<TKey, TKeyBundle>
 	{
-		public KdTree(int dimensions)
+		public KdTree()
 		{
-			this.dimensions = dimensions;
 			Count = 0;
 		}
 
-		public KdTree(int dimensions, AddDuplicateBehavior addDuplicateBehavior)
-			: this(dimensions)
+		public KdTree(AddDuplicateBehavior addDuplicateBehavior)
 		{
 			AddDuplicateBehavior = addDuplicateBehavior;
 		}
-
-		private int dimensions;
 
 		private KdTreeNode<TKey, TValue, TKeyBundle> root = null;
 
@@ -50,7 +47,7 @@ namespace KdTree
 		private int Increment(int value)
 		{
 			value++;
-			if (value >= dimensions) return 0;
+			if (value >= default(TDimension).Value) return 0;
 			return value;
 		}
 
@@ -218,7 +215,7 @@ namespace KdTree
 
 			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics>(count);
 
-			var rect = HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(dimensions);
+			var rect = HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(default(TDimension).Value);
 
 			AddNearestNeighbours(root, point, rect, 0, nearestNeighbours, default(TNumerics).MaxValue);
 
@@ -281,7 +278,7 @@ namespace KdTree
 				return;
 
 			// Work out the current dimension
-			int dimension = depth % dimensions;
+			int dimension = depth % default(TDimension).Value;
 
 			// Split our hyper-rect into 2 sub rects along the current 
 			// node's point on the current dimension
@@ -380,7 +377,7 @@ namespace KdTree
 			AddNearestNeighbours(
 				root,
 				center,
-				HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(dimensions),
+				HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(default(TDimension).Value),
 				0,
 				nearestNeighbours,
 				default(TNumerics).Multiply(radius, radius));
@@ -609,12 +606,12 @@ namespace KdTree
 			}
 		}
 
-		public static KdTree<TKey, TValue, TKeyBundle, TNumerics, TMetrics> LoadFromFile(string filename)
+		public static KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics> LoadFromFile(string filename)
 		{
 			BinaryFormatter formatter = new BinaryFormatter();
 			using (FileStream stream = File.Open(filename, FileMode.Open))
 			{
-				return (KdTree<TKey, TValue, TKeyBundle, TNumerics, TMetrics>)formatter.Deserialize(stream);
+				return (KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics>)formatter.Deserialize(stream);
 			}
 
 		}

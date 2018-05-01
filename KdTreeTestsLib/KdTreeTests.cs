@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Tree = KdTree.KdTree<float, string, KdTree.Math.FloatPair, KdTree.Math.FloatMath, KdTree.Math.FloatEuclideanMetic>;
+using Tree = KdTree.KdTree<float, string, KdTree.Math.FloatPair, KdTree.Integer._2, KdTree.Math.FloatMath, KdTree.Math.FloatEuclideanMetic>;
 using Node = KdTree.KdTreeNode<float, string, KdTree.Math.FloatPair>;
 
 struct City
@@ -24,7 +24,7 @@ namespace KdTree.Tests
 		[TestInitialize]
 		public void Setup()
 		{
-			tree = new Tree(2);
+			tree = new Tree();
 
 			testNodes = new List<Node>();
 			testNodes.AddRange(new Node[]
@@ -68,7 +68,7 @@ namespace KdTree.Tests
 		[TestCategory("KdTree")]
 		public void TestAddDuplicateInSkipMode()
 		{
-			tree = new Tree(2);
+			tree = new Tree();
 
 			Assert.AreEqual(AddDuplicateBehavior.Skip, tree.AddDuplicateBehavior);
 
@@ -86,7 +86,7 @@ namespace KdTree.Tests
 		[TestCategory("KdTree")]
 		public void TestAddDuplicateInErrorMode()
 		{
-			tree = new Tree(2, AddDuplicateBehavior.Error);
+			tree = new Tree(AddDuplicateBehavior.Error);
 
 			AddTestNodes();
 
@@ -111,7 +111,7 @@ namespace KdTree.Tests
 		[TestCategory("KdTree")]
 		public void TestAddDuplicateInUpdateMode()
 		{
-			tree = new Tree(2, AddDuplicateBehavior.Update);
+			tree = new Tree(AddDuplicateBehavior.Update);
 
 			AddTestNodes();
 
