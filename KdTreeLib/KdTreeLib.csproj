@@ -19,6 +19,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
+    <RootNamespace>KdTree</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

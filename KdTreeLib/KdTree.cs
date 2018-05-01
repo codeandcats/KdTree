@@ -402,7 +402,7 @@ namespace KdTree
 			{
 				if (parent == null)
 				{
-					value = default(TValue);
+					value = default;
 					return false;
 				}
 				else if (default(TMetrics).Equals(point, parent.Point))
@@ -424,14 +424,14 @@ namespace KdTree
 			if (TryFindValueAt(point, out TValue value))
 				return value;
 			else
-				return default(TValue);
+				return default;
 		}
 
 		public bool TryFindValue(TValue value, out TKeyBundle point)
 		{
 			if (root == null)
 			{
-				point = default(TKeyBundle);
+				point = default;
 				return false;
 			}
 
@@ -461,7 +461,7 @@ namespace KdTree
 				}
 			}
 
-			point = default(TKeyBundle);
+			point = default;
 			return false;
 		}
 
@@ -470,7 +470,7 @@ namespace KdTree
 			if (TryFindValue(value, out TKeyBundle point))
 				return point;
 			else
-				return default(TKeyBundle);
+				return default;
 		}
 
 		private void AddNodeToStringBuilder(KdTreeNode<TKey, TValue, TKeyBundle> node, StringBuilder sb, int depth)
