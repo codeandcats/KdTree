@@ -47,6 +47,13 @@ namespace KdTree
 
 		public AddDuplicateBehavior AddDuplicateBehavior { get; private set; }
 
+		private int Increment(int value)
+		{
+			value++;
+			if (value >= dimensions) return 0;
+			return value;
+		}
+
 		public bool Add(TKeyBundle point, TValue value)
 		{
 			var nodeToAdd = new KdTreeNode<TKey, TValue, TKeyBundle>(point, value);
@@ -63,7 +70,7 @@ namespace KdTree
 				do
 				{
 					// Increment the dimension we're searching in
-					dimension = (dimension + 1) % dimensions;
+					dimension = Increment(dimension);
 
 					// Does the node we're adding have the same hyperpoint as this node?
 					if (default(TMetrics).Equals(point, parent.Point))
@@ -172,7 +179,7 @@ namespace KdTree
 			int dimension = -1;
 			do
 			{
-				dimension = (dimension + 1) % dimensions;
+				dimension = Increment(dimension);
 
 				int compare = default(TNumerics).Compare(point[dimension], node.Point[dimension]);
 
@@ -408,7 +415,7 @@ namespace KdTree
 				}
 
 				// Keep searching
-				dimension = (dimension + 1) % dimensions;
+				dimension = Increment(dimension);
 				int compare = default(TNumerics).Compare(point[dimension], parent.Point[dimension]);
 				parent = parent[compare];
 			}
@@ -555,7 +562,7 @@ namespace KdTree
 			nodes[midIndex] = null;
 
 			// Recurse
-			int nextDimension = (byDimension + 1) % dimensions;
+			int nextDimension = Increment(byDimension);
 
 			if (fromIndex < midIndex)
 				AddNodesBalanced(nodes, nextDimension, fromIndex, midIndex - 1);
