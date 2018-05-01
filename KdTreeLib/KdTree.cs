@@ -24,7 +24,7 @@ namespace KdTree
 	}
 
 	[Serializable]
-	public class KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics> : IKdTree<TKey, TValue, TKeyBundle>
+	public partial class KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics> : IKdTree<TKey, TValue, TKeyBundle>
 		where TKeyBundle : IBundle<TKey>
 		where TDimension : struct, IInteger
 		where TNumerics : struct, INumerics<TKey>
@@ -616,7 +616,7 @@ namespace KdTree
 
 		}
 
-		public IEnumerator<KdTreeNode<TKey, TValue, TKeyBundle>> GetEnumerator()
+		public IEnumerator<(TKeyBundle Point, TValue Value)> GetEnumerator()
 		{
 			var left = new Stack<KdTreeNode<TKey, TValue, TKeyBundle>>();
 			var right = new Stack<KdTreeNode<TKey, TValue, TKeyBundle>>();
@@ -639,7 +639,7 @@ namespace KdTree
 
 			if (root != null)
 			{
-				yield return root;
+				yield return (root.Point, root.Value);
 
 				addLeft(root);
 				addRight(root);
@@ -653,7 +653,7 @@ namespace KdTree
 						addLeft(item);
 						addRight(item);
 
-						yield return item;
+						yield return (item.Point, item.Value);
 					}
 					else if (right.Any())
 					{
@@ -662,7 +662,7 @@ namespace KdTree
 						addLeft(item);
 						addRight(item);
 
-						yield return item;
+						yield return (item.Point, item.Value);
 					}
 					else
 					{
@@ -672,9 +672,6 @@ namespace KdTree
 			}
 		}
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
 }

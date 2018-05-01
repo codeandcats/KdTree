@@ -2,7 +2,7 @@
 
 namespace KdTree
 {
-	public interface IKdTree<TKey, TValue, TKeyBundle> : IEnumerable<KdTreeNode<TKey, TValue, TKeyBundle>>
+	public interface IKdTree<TKey, TValue, TKeyBundle> : IEnumerable<(TKeyBundle Point, TValue Value)>
 		where TKeyBundle : IBundle<TKey>
 	{
 		bool Add(TKeyBundle point, TValue value);
