@@ -17,13 +17,12 @@ namespace KdTree
 		{
 			List<(TItem, TDistance)> _items = new List<(TItem, TDistance)>();
 
-			public TDistance FurtherestDistance { get; private set; }
+			public TDistance FurtherestDistance => default(TNumerics).Zero;
 
 			public bool IsFull => false;
 
 			public bool Add(TItem item, TDistance distance)
 			{
-				if (default(TNumerics).Compare(FurtherestDistance, distance) < 0) FurtherestDistance = distance;
 				_items.Add((item, distance));
 				return true;
 			}

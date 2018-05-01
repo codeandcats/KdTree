@@ -8,10 +8,6 @@ namespace KdTree
 		[Serializable]
 		public class Node
 		{
-			public Node()
-			{
-			}
-
 			public Node(TKeyBundle point, TValue value)
 			{
 				Point = point;
@@ -24,21 +20,14 @@ namespace KdTree
 			internal Node LeftChild = null;
 			internal Node RightChild = null;
 
-			internal Node this[int compare]
+			internal ref Node this[int compare]
 			{
 				get
 				{
 					if (compare <= 0)
-						return LeftChild;
+						return ref LeftChild;
 					else
-						return RightChild;
-				}
-				set
-				{
-					if (compare <= 0)
-						LeftChild = value;
-					else
-						RightChild = value;
+						return ref RightChild;
 				}
 			}
 
