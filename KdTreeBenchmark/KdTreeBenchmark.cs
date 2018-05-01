@@ -49,13 +49,15 @@ namespace KdTreeBenchmark
 				tree.Add(new FloatPair(x, y), i);
 			}
 
+			var list = Tree.CreateUnlimitedList();
+
 			for (int i = 0; i < NumSearchIteration; i++)
 			{
 				var x = Next(rand);
 				var y = Next(rand);
 				var radius = Next(rand, 5, 100);
 
-				var list = Tree.CreateUnlimitedList();
+				list.Clear();
 				tree.RadialSearch(new FloatPair(x, y), radius, list);
 			}
 		}

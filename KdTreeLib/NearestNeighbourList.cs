@@ -35,6 +35,8 @@ namespace KdTree
 			public TItem[] GetSortedArray() => _items.OrderBy(x => x.Item2, numerics).Select(x => x.Item1).ToArray();
 
 			private static readonly INumerics<TDistance> numerics = default(TNumerics);
+
+			public void Clear() => _items.Clear();
 		}
 
 		public class List : INearestNeighbourList

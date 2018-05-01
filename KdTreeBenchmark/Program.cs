@@ -6,9 +6,9 @@ namespace KdTreeBenchmark
 	{
 		static void Main(string[] args)
 		{
-#if tre
+#if tru
             var b = new KdTreeBenchmark();
-            b.A();
+            b.RadialSearch();
 #else
 			BenchmarkRunner.Run<KdTreeBenchmark>();
 #endif
