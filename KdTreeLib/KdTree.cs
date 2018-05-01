@@ -22,7 +22,7 @@ namespace KdTree
 	}
 
 	[Serializable]
-	public partial class KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics> : IKdTree<TKey, TValue, TKeyBundle>
+	public partial class KdTree<TKey, TValue, TKeyBundle, TDimension, TNumerics, TMetrics> : IEnumerable<(TKeyBundle Point, TValue Value)>
 		where TKeyBundle : IBundle<TKey>
 		where TDimension : struct, IInteger
 		where TNumerics : struct, INumerics<TKey>
@@ -38,7 +38,7 @@ namespace KdTree
 			AddDuplicateBehavior = addDuplicateBehavior;
 		}
 
-		private KdTreeNode<TKey, TValue, TKeyBundle> root = null;
+		private Node root = null;
 
 		public AddDuplicateBehavior AddDuplicateBehavior { get; private set; }
 
@@ -51,16 +51,16 @@ namespace KdTree
 
 		public bool Add(TKeyBundle point, TValue value)
 		{
-			var nodeToAdd = new KdTreeNode<TKey, TValue, TKeyBundle>(point, value);
+			var nodeToAdd = new Node(point, value);
 
 			if (root == null)
 			{
-				root = new KdTreeNode<TKey, TValue, TKeyBundle>(point, value);
+				root = new Node(point, value);
 			}
 			else
 			{
 				int dimension = -1;
-				KdTreeNode<TKey, TValue, TKeyBundle> parent = root;
+				Node parent = root;
 
 				do
 				{
@@ -108,7 +108,7 @@ namespace KdTree
 			return true;
 		}
 
-		private void ReaddChildNodes(KdTreeNode<TKey, TValue, TKeyBundle> removedNode)
+		private void ReaddChildNodes(Node removedNode)
 		{
 			if (removedNode.IsLeaf)
 				return;
@@ -116,9 +116,9 @@ namespace KdTree
 			// The folllowing code might seem a little redundant but we're using 
 			// 2 queues so we can add the child nodes back in, in (more or less) 
 			// the same order they were added in the first place
-			var nodesToReadd = new Queue<KdTreeNode<TKey, TValue, TKeyBundle>>();
+			var nodesToReadd = new Queue<Node>();
 
-			var nodesToReaddQueue = new Queue<KdTreeNode<TKey, TValue, TKeyBundle>>();
+			var nodesToReaddQueue = new Queue<Node>();
 
 			if (removedNode.LeftChild != null)
 				nodesToReaddQueue.Enqueue(removedNode.LeftChild);
@@ -158,7 +158,7 @@ namespace KdTree
 			if (root == null)
 				return;
 
-			KdTreeNode<TKey, TValue, TKeyBundle> node;
+			Node node;
 
 			if (default(TMetrics).Equals(point, root.Point))
 			{
@@ -196,7 +196,7 @@ namespace KdTree
 			while (node != null);
 		}
 
-		public void GetNearestNeighbours(TKeyBundle point, INearestNeighbourList<(TKeyBundle Key, TValue Value), TKey> results)
+		public void GetNearestNeighbours(TKeyBundle point, NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.INearestNeighbourList results)
 		{
 			var rect = HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(default(TDimension).Value);
 			AddNearestNeighbours(root, point, rect, 0, results, default(TNumerics).MaxValue);
@@ -215,7 +215,7 @@ namespace KdTree
 			if (count == 0)
 				return Array.Empty<(TKeyBundle Key, TValue Value)>();
 
-			var nearestNeighbours = new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>(count);
+			var nearestNeighbours = CreateNearestNeighbourList(count);
 
 			var rect = HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(default(TDimension).Value);
 
@@ -223,12 +223,7 @@ namespace KdTree
 
 			count = nearestNeighbours.Count;
 
-			var neighbourArray = new(TKeyBundle Key, TValue Value)[count];
-
-			for (var index = 0; index < count; index++)
-				neighbourArray[count - index - 1] = nearestNeighbours.RemoveFurtherest();
-
-			return neighbourArray;
+			return nearestNeighbours.GetSortedArray();
 		}
 
 		/*
@@ -269,11 +264,11 @@ namespace KdTree
 		 */
 
 		private void AddNearestNeighbours(
-			KdTreeNode<TKey, TValue, TKeyBundle> node,
+			Node node,
 			TKeyBundle target,
 			HyperRect<TKey, TKeyBundle, TNumerics> rect,
 			int depth,
-			INearestNeighbourList<(TKeyBundle Key, TValue Value), TKey> nearestNeighbours,
+			NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.INearestNeighbourList nearestNeighbours,
 			TKey maxSearchRadiusSquared)
 		{
 			if (node == null)
@@ -348,23 +343,15 @@ namespace KdTree
 		/// <param name="count">Maximum number of neighbours</param>
 		public (TKeyBundle Key, TValue Value)[] RadialSearch(TKeyBundle center, TKey radius, int maxCapacity = int.MaxValue)
 		{
-			var results = new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>(maxCapacity);
+			var results = CreateNearestNeighbourList(maxCapacity);
 			RadialSearch(center, radius, results);
 
 			var count = results.Count;
 
-			var neighbourArray = new (TKeyBundle, TValue)[count];
-
-			for (var index = 0; index < count; index++)
-			{
-				var n = results.RemoveFurtherest();
-				neighbourArray[count - index - 1] = (n.Key, n.Value);
-			}
-
-			return neighbourArray;
+			return results.GetSortedArray();
 		}
 
-		public void RadialSearch(TKeyBundle center, TKey radius, INearestNeighbourList<(TKeyBundle Key, TValue Value), TKey> results)
+		public void RadialSearch(TKeyBundle center, TKey radius, NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>.INearestNeighbourList results)
 		{
 			AddNearestNeighbours(
 				root,
@@ -419,7 +406,7 @@ namespace KdTree
 			}
 
 			// First-in, First-out list of nodes to search
-			var nodesToSearch = new Queue<KdTreeNode<TKey, TValue, TKeyBundle>>();
+			var nodesToSearch = new Queue<Node>();
 
 			nodesToSearch.Enqueue(root);
 
@@ -456,7 +443,7 @@ namespace KdTree
 				return default;
 		}
 
-		private void AddNodeToStringBuilder(KdTreeNode<TKey, TValue, TKeyBundle> node, StringBuilder sb, int depth)
+		private void AddNodeToStringBuilder(Node node, StringBuilder sb, int depth)
 		{
 			sb.AppendLine(node.ToString());
 
@@ -484,7 +471,7 @@ namespace KdTree
 			return sb.ToString();
 		}
 
-		private void AddNodesToList(KdTreeNode<TKey, TValue, TKeyBundle> node, List<KdTreeNode<TKey, TValue, TKeyBundle>> nodes)
+		private void AddNodesToList(Node node, List<Node> nodes)
 		{
 			if (node == null)
 				return;
@@ -501,7 +488,7 @@ namespace KdTree
 			}
 		}
 
-		private void SortNodesArray(KdTreeNode<TKey, TValue, TKeyBundle>[] nodes, int byDimension, int fromIndex, int toIndex)
+		private void SortNodesArray(Node[] nodes, int byDimension, int fromIndex, int toIndex)
 		{
 			for (var index = fromIndex + 1; index <= toIndex; index++)
 			{
@@ -522,7 +509,7 @@ namespace KdTree
 			}
 		}
 
-		private void AddNodesBalanced(KdTreeNode<TKey, TValue, TKeyBundle>[] nodes, int byDimension, int fromIndex, int toIndex)
+		private void AddNodesBalanced(Node[] nodes, int byDimension, int fromIndex, int toIndex)
 		{
 			if (fromIndex == toIndex)
 			{
@@ -553,7 +540,7 @@ namespace KdTree
 
 		public void Balance()
 		{
-			var nodeList = new List<KdTreeNode<TKey, TValue, TKeyBundle>>();
+			var nodeList = new List<Node>();
 			AddNodesToList(root, nodeList);
 
 			Clear();
@@ -561,7 +548,7 @@ namespace KdTree
 			AddNodesBalanced(nodeList.ToArray(), 0, 0, nodeList.Count - 1);
 		}
 
-		private void RemoveChildNodes(KdTreeNode<TKey, TValue, TKeyBundle> node)
+		private void RemoveChildNodes(Node node)
 		{
 			for (var side = -1; side <= 1; side += 2)
 			{
@@ -581,10 +568,10 @@ namespace KdTree
 
 		public IEnumerator<(TKeyBundle Point, TValue Value)> GetEnumerator()
 		{
-			var left = new Stack<KdTreeNode<TKey, TValue, TKeyBundle>>();
-			var right = new Stack<KdTreeNode<TKey, TValue, TKeyBundle>>();
+			var left = new Stack<Node>();
+			var right = new Stack<Node>();
 
-			void addLeft(KdTreeNode<TKey, TValue, TKeyBundle> node)
+			void addLeft(Node node)
 			{
 				if (node.LeftChild != null)
 				{
@@ -592,7 +579,7 @@ namespace KdTree
 				}
 			}
 
-			void addRight(KdTreeNode<TKey, TValue, TKeyBundle> node)
+			void addRight(Node node)
 			{
 				if (node.RightChild != null)
 				{

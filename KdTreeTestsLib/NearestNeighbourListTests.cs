@@ -1,8 +1,7 @@
-﻿using KdTree.Math;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
-using NeighbourList = KdTree.NearestNeighbourList<Planet, float, KdTree.Math.FloatMath>;
+using NeighbourList = KdTree.NearestNeighbourList<Planet, float, KdTree.Math.FloatMath>.List;
 
 struct Planet
 {

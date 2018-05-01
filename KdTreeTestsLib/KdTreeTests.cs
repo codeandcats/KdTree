@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tree = KdTree.KdTree<float, string, KdTree.Math.FloatPair, KdTree.Integer._2, KdTree.Math.FloatMath, KdTree.Math.FloatEuclideanMetic>;
-using Node = KdTree.KdTreeNode<float, string, KdTree.Math.FloatPair>;
+using Node = KdTree.KdTree<float, string, KdTree.Math.FloatPair, KdTree.Integer._2, KdTree.Math.FloatMath, KdTree.Math.FloatEuclideanMetic>.Node;
 
 struct City
 {
@@ -403,9 +403,9 @@ namespace KdTree.Tests
 			{
 				var actualNeighbours = tree.RadialSearch(new FloatPair(toowoomba.Long, -toowoomba.Lat), i);
 
-				var list = new UnlimitedList<(FloatPair Key, string Value), float, FloatMath>();
+				var list = Tree.CreateUnlimitedList();
 				tree.RadialSearch(new FloatPair(toowoomba.Long, -toowoomba.Lat), i, list);
-				var sorted = list.ToSortedArray();
+				var sorted = list.GetSortedArray();
 
 				for (var index = 0; index < actualNeighbours.Length; index++)
 				{

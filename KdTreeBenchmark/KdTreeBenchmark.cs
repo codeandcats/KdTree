@@ -2,6 +2,7 @@
 using KdTree;
 using KdTree.Math;
 using System;
+using Tree = KdTree.KdTree<float, int, KdTree.Math.FloatPair, KdTree.Integer._2, KdTree.Math.FloatMath, KdTreeBenchmark.FloatChebyshevMetrics>;
 
 namespace KdTreeBenchmark
 {
@@ -38,7 +39,7 @@ namespace KdTreeBenchmark
 		public void RadialSearch()
 		{
 			var rand = new Random(1);
-			var tree = new KdTree<float, int, FloatPair, Integer._2, FloatMath, FloatChebyshevMetrics>();
+			var tree = new Tree();
 
 			for (int i = 0; i < NumItems; i++)
 			{
@@ -54,7 +55,8 @@ namespace KdTreeBenchmark
 				var y = Next(rand);
 				var radius = Next(rand, 5, 100);
 
-				var result = tree.RadialSearch(new FloatPair(x, y), radius);
+				var list = Tree.CreateUnlimitedList();
+				tree.RadialSearch(new FloatPair(x, y), radius, list);
 			}
 		}
 	}

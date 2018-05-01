@@ -2,7 +2,7 @@
 
 namespace KdTree
 {
-	public class PriorityQueue<TItem, TPriority, TNumerics> : IPriorityQueue<TItem, TPriority>
+	public class PriorityQueue<TItem, TPriority, TNumerics>
 		where TNumerics : struct, INumerics<TPriority>
 	{
 		struct ItemPriority
