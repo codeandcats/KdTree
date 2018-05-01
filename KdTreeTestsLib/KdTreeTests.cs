@@ -403,9 +403,14 @@ namespace KdTree.Tests
 			{
 				var actualNeighbours = tree.RadialSearch(new FloatPair(toowoomba.Long, -toowoomba.Lat), i);
 
+				var list = new UnlimitedList<(FloatPair Key, string Value), float, FloatMath>();
+				tree.RadialSearch(new FloatPair(toowoomba.Long, -toowoomba.Lat), i, list);
+				var sorted = list.ToSortedArray();
+
 				for (var index = 0; index < actualNeighbours.Length; index++)
 				{
 					Assert.AreEqual(expectedNeighbours[index].Address, actualNeighbours[index].Value);
+					Assert.AreEqual(expectedNeighbours[index].Address, sorted[index].Value);
 				}
 			}
 		}

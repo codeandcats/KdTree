@@ -1,15 +1,32 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace KdTree
 {
 	public interface INearestNeighbourList<TItem, TDistance>
 	{
 		bool Add(TItem item, TDistance distance);
-		TItem GetFurtherest();
-		TItem RemoveFurtherest();
+		TDistance FurtherestDistance { get; }
+		bool IsFull { get; }
+	}
 
-		int MaxCapacity { get; }
-		int Count { get; }
+	public class UnlimitedList<TItem, TDistance, TNumerics> : INearestNeighbourList<TItem, TDistance>
+		where TNumerics : struct, INumerics<TDistance>
+	{
+		List<(TItem, TDistance)> _items = new List<(TItem, TDistance)>();
+
+		public TDistance FurtherestDistance { get; private set; }
+
+		public bool IsFull => false;
+
+		public bool Add(TItem item, TDistance distance)
+		{
+			if (default(TNumerics).Compare(FurtherestDistance, distance) < 0) FurtherestDistance = distance;
+			_items.Add((item, distance));
+			return true;
+		}
+
+		public TItem[] ToSortedArray() => _items.OrderBy(x => x.Item2, new TNumerics()).Select(x => x.Item1).ToArray();
 	}
 
 	public class NearestNeighbourList<TItem, TDistance, TNumerics> : INearestNeighbourList<TItem, TDistance>
@@ -17,28 +34,26 @@ namespace KdTree
 	{
 		public NearestNeighbourList(int maxCapacity)
 		{
-			this.maxCapacity = maxCapacity;
-
-			queue = new PriorityQueue<TItem, TDistance, TNumerics>(maxCapacity);
+			MaxCapacity = maxCapacity;
+			queue = maxCapacity == int.MaxValue
+				? new PriorityQueue<TItem, TDistance, TNumerics>()
+				: new PriorityQueue<TItem, TDistance, TNumerics>(maxCapacity);
 		}
 
 		public NearestNeighbourList()
 		{
-			this.maxCapacity = int.MaxValue;
-
+			MaxCapacity = int.MaxValue;
 			queue = new PriorityQueue<TItem, TDistance, TNumerics>();
 		}
 
 		private PriorityQueue<TItem, TDistance, TNumerics> queue;
+        public int MaxCapacity { get; }
 
-		private int maxCapacity;
-		public int MaxCapacity { get { return maxCapacity; } }
-
-		public int Count { get { return queue.Count; } }
+        public int Count { get { return queue.Count; } }
 
 		public bool Add(TItem item, TDistance distance)
 		{
-			if (queue.Count >= maxCapacity)
+			if (queue.Count >= MaxCapacity)
 			{
 				// If the distance of this item is less than the distance of the last item
 				// in our neighbour list then pop that neighbour off and push this one on
@@ -59,30 +74,12 @@ namespace KdTree
 			}
 		}
 
-		public TItem GetFurtherest()
-		{
-			if (Count == 0)
-				throw new Exception("List is empty");
-			else
-				return queue.GetHighest();
-		}
-
-		public TDistance GetFurtherestDistance()
-		{
-			if (Count == 0)
-				throw new Exception("List is empty");
-			else
-				return queue.GetHighestPriority();
-		}
+		public TDistance FurtherestDistance => queue.GetHighestPriority();
+		public bool IsFull => Count == MaxCapacity;
 
 		public TItem RemoveFurtherest()
 		{
 			return queue.Dequeue();
-		}
-
-		public bool IsCapacityReached
-		{
-			get { return Count == MaxCapacity; }
 		}
 	}
 }

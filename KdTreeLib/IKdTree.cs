@@ -15,13 +15,13 @@ namespace KdTree
 
 		TKeyBundle FindValue(TValue value);
 
-		KdTreeNode<TKey, TValue, TKeyBundle>[] RadialSearch(TKeyBundle center, TKey radius, int count);
+		void RadialSearch(TKeyBundle center, TKey radius, INearestNeighbourList<(TKeyBundle Key, TValue Value), TKey> results);
 
 		void RemoveAt(TKeyBundle point);
 
 		void Clear();
 
-		KdTreeNode<TKey, TValue, TKeyBundle>[] GetNearestNeighbours(TKeyBundle point, int count = int.MaxValue);
+		void GetNearestNeighbours(TKeyBundle point, INearestNeighbourList<(TKeyBundle Key, TValue Value), TKey> results);
 
 		int Count { get; }
 	}

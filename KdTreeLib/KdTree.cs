@@ -196,7 +196,13 @@ namespace KdTree
 			while (node != null);
 		}
 
-		public KdTreeNode<TKey, TValue, TKeyBundle>[] GetNearestNeighbours(TKeyBundle point, int count)
+		public void GetNearestNeighbours(TKeyBundle point, INearestNeighbourList<(TKeyBundle Key, TValue Value), TKey> results)
+		{
+			var rect = HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(default(TDimension).Value);
+			AddNearestNeighbours(root, point, rect, 0, results, default(TNumerics).MaxValue);
+		}
+
+		public (TKeyBundle Key, TValue Value)[] GetNearestNeighbours(TKeyBundle point, int count = int.MaxValue)
 		{
 			if (count > Count)
 				count = Count;
@@ -207,11 +213,9 @@ namespace KdTree
 			}
 
 			if (count == 0)
-				return new KdTreeNode<TKey, TValue, TKeyBundle>[0];
+				return Array.Empty<(TKeyBundle Key, TValue Value)>();
 
-			var neighbours = new KdTreeNode<TKey, TValue, TKeyBundle>[count];
-
-			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics>(count);
+			var nearestNeighbours = new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>(count);
 
 			var rect = HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(default(TDimension).Value);
 
@@ -219,7 +223,7 @@ namespace KdTree
 
 			count = nearestNeighbours.Count;
 
-			var neighbourArray = new KdTreeNode<TKey, TValue, TKeyBundle>[count];
+			var neighbourArray = new(TKeyBundle Key, TValue Value)[count];
 
 			for (var index = 0; index < count; index++)
 				neighbourArray[count - index - 1] = nearestNeighbours.RemoveFurtherest();
@@ -269,7 +273,7 @@ namespace KdTree
 			TKeyBundle target,
 			HyperRect<TKey, TKeyBundle, TNumerics> rect,
 			int depth,
-			NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics> nearestNeighbours,
+			INearestNeighbourList<(TKeyBundle Key, TValue Value), TKey> nearestNeighbours,
 			TKey maxSearchRadiusSquared)
 		{
 			if (node == null)
@@ -317,9 +321,8 @@ namespace KdTree
 
 			if (default(TNumerics).Compare(distanceSquaredToTarget, maxSearchRadiusSquared) <= 0)
 			{
-				if (nearestNeighbours.IsCapacityReached)
+				if (!nearestNeighbours.IsFull || default(TNumerics).Compare(distanceSquaredToTarget, nearestNeighbours.FurtherestDistance) < 0)
 				{
-					if (default(TNumerics).Compare(distanceSquaredToTarget, nearestNeighbours.GetFurtherestDistance()) < 0)
 						AddNearestNeighbours(
 							furtherNode,
 							target,
@@ -328,34 +331,13 @@ namespace KdTree
 							nearestNeighbours,
 							maxSearchRadiusSquared);
 				}
-				else
-				{
-					AddNearestNeighbours(
-						furtherNode,
-						target,
-						furtherRect,
-						depth + 1,
-						nearestNeighbours,
-						maxSearchRadiusSquared);
-				}
 			}
 
 			// Try to add the current node to our nearest neighbours list
 			distanceSquaredToTarget = default(TMetrics).DistanceSquaredBetweenPoints(node.Point, target);
 
 			if (default(TNumerics).Compare(distanceSquaredToTarget, maxSearchRadiusSquared) <= 0)
-				nearestNeighbours.Add(node, distanceSquaredToTarget);
-		}
-
-		/// <summary>
-		/// Performs a radial search.
-		/// </summary>
-		/// <param name="center">Center point</param>
-		/// <param name="radius">Radius to find neighbours within</param>
-		public KdTreeNode<TKey, TValue, TKeyBundle>[] RadialSearch(TKeyBundle center, TKey radius)
-		{
-			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics>();
-			return RadialSearch(center, radius, nearestNeighbours);
+				nearestNeighbours.Add((node.Point, node.Value), distanceSquaredToTarget);
 		}
 
 		/// <summary>
@@ -364,30 +346,33 @@ namespace KdTree
 		/// <param name="center">Center point</param>
 		/// <param name="radius">Radius to find neighbours within</param>
 		/// <param name="count">Maximum number of neighbours</param>
-		public KdTreeNode<TKey, TValue, TKeyBundle>[] RadialSearch(TKeyBundle center, TKey radius, int count)
+		public (TKeyBundle Key, TValue Value)[] RadialSearch(TKeyBundle center, TKey radius, int maxCapacity = int.MaxValue)
 		{
-			var nearestNeighbours = new NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics>(count);
-			return RadialSearch(center, radius, nearestNeighbours);
+			var results = new NearestNeighbourList<(TKeyBundle Key, TValue Value), TKey, TNumerics>(maxCapacity);
+			RadialSearch(center, radius, results);
+
+			var count = results.Count;
+
+			var neighbourArray = new (TKeyBundle, TValue)[count];
+
+			for (var index = 0; index < count; index++)
+			{
+				var n = results.RemoveFurtherest();
+				neighbourArray[count - index - 1] = (n.Key, n.Value);
+			}
+
+			return neighbourArray;
 		}
 
-		private KdTreeNode<TKey, TValue, TKeyBundle>[] RadialSearch(TKeyBundle center, TKey radius, NearestNeighbourList<KdTreeNode<TKey, TValue, TKeyBundle>, TKey, TNumerics> nearestNeighbours)
+		public void RadialSearch(TKeyBundle center, TKey radius, INearestNeighbourList<(TKeyBundle Key, TValue Value), TKey> results)
 		{
 			AddNearestNeighbours(
 				root,
 				center,
 				HyperRect<TKey, TKeyBundle, TNumerics>.Infinite(default(TDimension).Value),
 				0,
-				nearestNeighbours,
+				results,
 				default(TNumerics).Multiply(radius, radius));
-
-			var count = nearestNeighbours.Count;
-
-			var neighbourArray = new KdTreeNode<TKey, TValue, TKeyBundle>[count];
-
-			for (var index = 0; index < count; index++)
-				neighbourArray[count - index - 1] = nearestNeighbours.RemoveFurtherest();
-
-			return neighbourArray;
 		}
 
 		public int Count { get; private set; }
