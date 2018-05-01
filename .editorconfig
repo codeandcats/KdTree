@@ -1,0 +1,3 @@
+# Tab indentation
+[*.cs]
+indent_style = tab

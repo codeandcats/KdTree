@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tree = KdTree.KdTree<float, string, KdTree.Math.FloatPair, KdTree.Integer._2, KdTree.Math.FloatMath, KdTree.Math.FloatEuclideanMetic>;
+using Node = KdTree.KdTree<float, string, KdTree.Math.FloatPair, KdTree.Integer._2, KdTree.Math.FloatMath, KdTree.Math.FloatEuclideanMetic>.Node;
 
 struct City
 {
@@ -17,24 +19,22 @@ namespace KdTree.Tests
 	[TestClass]
 	public class KdTreeTests
 	{
-		private KdTree<float, string> tree;
+		private Tree tree;
 
 		[TestInitialize]
 		public void Setup()
 		{
-			tree = new KdTree<float, string>(2, new FloatMath());
+			tree = new Tree();
 
-			testNodes = new List<KdTreeNode<float, string>>();
-			testNodes.AddRange(new KdTreeNode<float, string>[]
+			testNodes = new List<Node>();
+			testNodes.AddRange(new Node[]
 			{
-				new KdTreeNode<float, string>(new float[] { 5, 5 }, "Root"),
+				new Node(new FloatPair(5, 5), "Root"),
 
-				new KdTreeNode<float, string>(new float[] { 2.5f, 2.5f }, "Root-Left"),
-				new KdTreeNode<float, string>(new float[] { 7.5f, 7.5f }, "Root-Right"),
-
-				new KdTreeNode<float, string>(new float[] { 1, 10 }, "Root-Left-Left"),
-
-				new KdTreeNode<float, string>(new float[] { 10, 10 }, "Root-Right-Right")
+				new Node(new FloatPair(2.5f, 2.5f), "Root-Left"),
+				new Node(new FloatPair(7.5f, 7.5f), "Root-Right"),
+				new Node(new FloatPair(1, 10), "Root-Left-Left"),
+				new Node(new FloatPair(10, 10), "Root-Right-Right")
 			});
 		}
 
@@ -44,7 +44,7 @@ namespace KdTree.Tests
 			tree = null;
 		}
 
-		private List<KdTreeNode<float, string>> testNodes;
+		private List<Node> testNodes;
 
 		private void AddTestNodes()
 		{
@@ -68,7 +68,7 @@ namespace KdTree.Tests
 		[TestCategory("KdTree")]
 		public void TestAddDuplicateInSkipMode()
 		{
-			tree = new KdTree<float, string>(2, new FloatMath());
+			tree = new Tree();
 
 			Assert.AreEqual(AddDuplicateBehavior.Skip, tree.AddDuplicateBehavior);
 
@@ -86,7 +86,7 @@ namespace KdTree.Tests
 		[TestCategory("KdTree")]
 		public void TestAddDuplicateInErrorMode()
 		{
-			tree = new KdTree<float, string>(2, new FloatMath(), AddDuplicateBehavior.Error);
+			tree = new Tree(AddDuplicateBehavior.Error);
 
 			AddTestNodes();
 
@@ -111,7 +111,7 @@ namespace KdTree.Tests
 		[TestCategory("KdTree")]
 		public void TestAddDuplicateInUpdateMode()
 		{
-			tree = new KdTree<float, string>(2, new FloatMath(), AddDuplicateBehavior.Update);
+			tree = new Tree(AddDuplicateBehavior.Update);
 
 			AddTestNodes();
 
@@ -140,7 +140,7 @@ namespace KdTree.Tests
 					Assert.Fail("Could not find test node");
 			}
 
-			if (!tree.TryFindValueAt(new float[] { 3.14f, 5 }, out actualValue))
+			if (!tree.TryFindValueAt(new FloatPair(3.14f, 5), out actualValue))
 				Assert.IsNull(actualValue);
 			else
 				Assert.Fail("Reportedly found node it shouldn't have");
@@ -161,7 +161,7 @@ namespace KdTree.Tests
 				Assert.AreEqual(node.Value, actualValue);
 			}
 
-			actualValue = tree.FindValueAt(new float[] { 3.15f, 5 });
+			actualValue = tree.FindValueAt(new FloatPair(3.15f, 5));
 
 			Assert.IsNull(actualValue);
 		}
@@ -172,7 +172,7 @@ namespace KdTree.Tests
 		{
 			AddTestNodes();
 
-			float[] actualPoint;
+			FloatPair actualPoint;
 
 			foreach (var node in testNodes)
 			{
@@ -180,8 +180,8 @@ namespace KdTree.Tests
 				Assert.AreEqual(node.Point, actualPoint);
 			}
 
-			actualPoint = tree.FindValue("Your Mumma");
-			Assert.IsNull(actualPoint);
+			var success = tree.TryFindValue("Your Mumma", out _);
+			Assert.IsFalse(success);
 		}
 
 		[TestMethod]
@@ -190,7 +190,7 @@ namespace KdTree.Tests
 		{
 			AddTestNodes();
 
-			var nodesToRemove = new KdTreeNode<float, string>[] {
+			var nodesToRemove = new Node[] {
 				testNodes[1], // Root-Left
 				testNodes[0] // Root
 			};
@@ -200,8 +200,8 @@ namespace KdTree.Tests
 				tree.RemoveAt(nodeToRemove.Point);
 				testNodes.Remove(nodeToRemove);
 
-				Assert.IsNull(tree.FindValue(nodeToRemove.Value));
-				Assert.IsNull(tree.FindValueAt(nodeToRemove.Point));
+				Assert.IsFalse(tree.TryFindValue(nodeToRemove.Value, out _));
+				Assert.IsFalse(tree.TryFindValueAt(nodeToRemove.Point, out _));
 
 				foreach (var testNode in testNodes)
 				{
@@ -290,7 +290,7 @@ namespace KdTree.Tests
 
 			foreach (var city in cities)
 			{
-				tree.Add(new float[] { city.Long, -city.Lat }, city.Address);
+				tree.Add(new FloatPair(city.Long, -city.Lat), city.Address);
 			}
 
 			/*
@@ -308,7 +308,7 @@ namespace KdTree.Tests
 			for (var findLimit = 0; findLimit <= cities.Length; findLimit++)
 			{
 				var actualNeighbours = tree.GetNearestNeighbours(
-					new float[] { toowoomba.Long, -toowoomba.Lat },
+					new FloatPair(toowoomba.Long, -toowoomba.Lat),
 					findLimit);
 
 				var expectedNeighbours = cities
@@ -394,18 +394,23 @@ namespace KdTree.Tests
 
 			foreach (var city in cities)
 			{
-				tree.Add(new float[] { city.Long, -city.Lat }, city.Address);
+				tree.Add(new FloatPair(city.Long, -city.Lat), city.Address);
 			}
 			var expectedNeighbours = cities
 				.OrderBy(p => p.DistanceFromToowoomba).ToList();
 
 			for (var i = 1; i < 100; i *= 2)
 			{
-				var actualNeighbours = tree.RadialSearch(new float[] { toowoomba.Long, -toowoomba.Lat }, i);
+				var actualNeighbours = tree.RadialSearch(new FloatPair(toowoomba.Long, -toowoomba.Lat), i);
+
+				var list = Tree.CreateUnlimitedList();
+				tree.RadialSearch(new FloatPair(toowoomba.Long, -toowoomba.Lat), i, list);
+				var sorted = list.GetSortedArray();
 
 				for (var index = 0; index < actualNeighbours.Length; index++)
 				{
 					Assert.AreEqual(expectedNeighbours[index].Address, actualNeighbours[index].Value);
+					Assert.AreEqual(expectedNeighbours[index].Address, sorted[index].Value);
 				}
 			}
 		}

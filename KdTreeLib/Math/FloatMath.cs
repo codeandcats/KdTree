@@ -1,69 +1,74 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace KdTree.Math
 {
-    [Serializable]
-	public class FloatMath : TypeMath<float>
+	public struct FloatPair : IBundle<float>, IEquatable<FloatPair>
 	{
-		public override int Compare(float a, float b)
+		public float X;
+		public float Y;
+
+		public FloatPair(float x, float y) => (X, Y) = (x, y);
+
+		public float this[int index]
 		{
-			return a.CompareTo(b);
+			get => Unsafe.Add(ref Unsafe.As<FloatPair, float>(ref this), index);
+			set => Unsafe.Add(ref Unsafe.As<FloatPair, float>(ref this), index) = value;
 		}
 
-		public override bool AreEqual(float a, float b)
+		public int Length => 2;
+
+		public bool Equals(FloatPair other) => X == other.X && Y == other.Y;
+		public static bool operator ==(FloatPair a, FloatPair b) => a.X == b.X && a.Y == b.Y;
+		public static bool operator !=(FloatPair a, FloatPair b) => a.X != b.X || a.Y != b.Y;
+		public override bool Equals(object obj) => obj is FloatPair other && Equals(other);
+		public override int GetHashCode() => X.GetHashCode() ^ Y.GetHashCode();
+	}
+
+	public struct FloatEuclideanMetic : IMetrics<float, FloatPair>
+	{
+		public float DistanceSquaredBetweenPoints(FloatPair a, FloatPair b)
 		{
-			return a == b;
-		}
-
-		public override float MinValue
-		{
-			get { return float.MinValue; }
-		}
-
-		public override float MaxValue
-		{
-			get { return float.MaxValue; }
-		}
-
-		public override float Zero
-		{
-			get { return 0; }
-		}
-
-		public override float NegativeInfinity { get { return float.NegativeInfinity; } }
-
-		public override float PositiveInfinity { get { return float.PositiveInfinity; } }
-
-		public override float Add(float a, float b)
-		{
-			return a + b;
-		}
-
-		public override float Subtract(float a, float b)
-		{
-			return a - b;
-		}
-
-		public override float Multiply(float a, float b)
-		{
-			return a * b;
-		}
-
-		public override float DistanceSquaredBetweenPoints(float[] a, float[] b)
-		{
-			float distance = Zero;
+			float distance = 0f;
 			int dimensions = a.Length;
 
 			// Return the absolute distance bewteen 2 hyper points
 			for (var dimension = 0; dimension < dimensions; dimension++)
 			{
-				float distOnThisAxis = Subtract(a[dimension], b[dimension]);
-				float distOnThisAxisSquared = Multiply(distOnThisAxis, distOnThisAxis);
+				float distOnThisAxis = a[dimension] - b[dimension];
+				float distOnThisAxisSquared = distOnThisAxis * distOnThisAxis;
 
-				distance = Add(distance, distOnThisAxisSquared);
+				distance = distance + distOnThisAxisSquared;
 			}
 
 			return distance;
 		}
+
+		public bool Equals(FloatPair x, FloatPair y) => x.X == y.X && x.Y == y.Y;
+		public int GetHashCode(FloatPair obj) => obj.GetHashCode();
+	}
+
+	public struct FloatMath : INumerics<float>
+	{
+		public int Compare(float a, float b) => a.CompareTo(b);
+
+		public float MinValue => float.MinValue;
+
+		public float MaxValue => float.MaxValue;
+
+		public float Zero => 0;
+
+		public float NegativeInfinity => float.NegativeInfinity;
+
+		public float PositiveInfinity => float.PositiveInfinity;
+
+		public float Add(float a, float b) => a + b;
+
+		public float Subtract(float a, float b) => a - b;
+
+		public float Multiply(float a, float b) => a * b;
+
+		public bool Equals(float x, float y) => x == y;
+		public int GetHashCode(float obj) => obj.GetHashCode();
 	}
 }
