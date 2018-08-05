@@ -16,7 +16,6 @@ PM> Install-Package KdTree
 ```cs
 
 var tree = new KdTree<float, int>(2, new FloatMath());
-var coords = new[] { 0.0f, 0.0f };
 tree.Add(new[] { 50.0f, 80.0f }, 100);
 tree.Add(new[] { 20.0f, 10.0f }, 200);
 
