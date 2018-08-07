@@ -117,11 +117,15 @@ namespace KdTree.Tests
 
 			var newValue = "I love chicken, I love liver, Meow Mix Meow Mix please deliver";
 
+			var olcCount = tree.Count();
+
 			tree.Add(testNodes[0].Point, newValue);
 
 			var actualValue = tree.FindValueAt(testNodes[0].Point);
+			var newCount = tree.Count();
 
 			Assert.AreEqual(newValue, actualValue);
+			Assert.AreEqual(olcCount, newCount);
 		}
 
 		[TestMethod]
